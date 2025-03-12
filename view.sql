@@ -14,7 +14,7 @@ INNER JOIN products ON products.product_id = cart.cart_productid
 WHERE cart_orders = 0
 GROUP BY cart.cart_productid , cart.cart_usersid
 
--- DtGq_}SV+gCa6M
+-- DtGq_SV+gCa6M
 CREATE OR REPLACE VIEW salon AS
 SELECT salon_order.* , barbar.* FROM salon_order
 INNER JOIN barbar on salon_order.salon_barbar_id = barbar.barbar_id
