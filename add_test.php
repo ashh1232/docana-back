@@ -6,17 +6,17 @@ include './connect.php';
 
 $name = filterRequest('name');
 
-$desc = filterRequest('desc');
+// $desc = filterRequest('desc');
 
 $price = filterRequest('price');
 
-$discount = filterRequest('discount');
+// $discount = filterRequest('discount');
 
-$image1 = filterRequest('image1');
+$image1 = filterRequest('image');
 
-$image2 = filterRequest('image2');
+// $image2 = filterRequest('image2');
 
-$image3 = filterRequest('image3');
+// $image3 = filterRequest('image3');
 
 
 
@@ -38,7 +38,7 @@ $data = array(
 
     // 'product_image3' => $image3,
 
-    'product_cat' => '15'
+    'product_cat' => '1'
 
 );
 
