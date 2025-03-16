@@ -12,25 +12,25 @@ $price = filterRequest('price');
 
 // $discount = filterRequest('discount');
 
-$image1 = filterRequest('image');
+$image = filterRequest('image');
 
 // $image2 = filterRequest('image2');
 
-// $image3 = filterRequest('image3');
+$proCat = filterRequest('product_cat');
 
 
 
 $data = array(
 
     'product_name' => $name,
-    'product_price' => $price,
-    'product_image' => $image,
+
     // 'product_desc' => $desc,
 
-   
+    'product_price' => $price,
 
     // 'product_discount' => $discount,
 
+    'product_image' => $image,
 
     // 'product_image2' => $image2,
 
@@ -38,7 +38,7 @@ $data = array(
 
     // 'product_image3' => $image3,
 
-    'product_cat' => '1'
+    'product_cat' => $proCat
 
 );
 
