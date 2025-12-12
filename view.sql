@@ -30,10 +30,8 @@ CREATE OR REPLACE VIEW onborderview AS
 SELECT categories.* , home_cat.* FROM categories
 INNER JOIN home_cat on  home_cat.ho_ca_id = categories.cat_ho_ca
 
+
+
 CREATE OR REPLACE VIEW catview AS
 SELECT main_categories.* , categories.* FROM main_categories
 INNER JOIN categories on categories.cat_main = main_categories.main_id
-
-
-
-

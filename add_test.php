@@ -42,4 +42,4 @@ $data = array(
 
 );
 
-insertData('products',$data);
+insertData('products', $data);

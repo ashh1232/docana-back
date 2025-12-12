@@ -3,41 +3,38 @@ define("MB", 1048576);
 
 function filterRequest($requestname)
 {
-  return  htmlspecialchars(strip_tags($_POST[$requestname]));
+    return  htmlspecialchars(strip_tags($_POST[$requestname]));
 }
 
 function getAllData($table, $where = null, $values = null, $json = true)
 {
     global $con;
     $data = array();
-    if($where == null){
+    if ($where == null) {
         $stmt = $con->prepare("SELECT  * FROM $table ");
-    }else{
+    } else {
         $stmt = $con->prepare("SELECT  * FROM $table WHERE   $where ");
     }
-    
+
     $stmt->execute($values);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
-    if($json == true){
-        if ($count > 0){
+    if ($json == true) {
+        if ($count > 0) {
             echo json_encode(array("status" => "success", "data" => $data));
         } else {
             echo json_encode(array("status" => "failure"));
         }
         return $count;
-
-    }else{
-        if($count >0){
-            return array("status" => "success" , "data" => $data ); 
-
-        }else{
+    } else {
+        if ($count > 0) {
+            return array("status" => "success", "data" => $data);
+        } else {
             return array("status" => "failure");
         }
     }
-   
 }
-function getData($table, $where = null, $values = null , $json=true)
+function getData($table, $where = null, $values = null, $json = true)
 {
     global $con;
     $data = array();
@@ -45,16 +42,15 @@ function getData($table, $where = null, $values = null , $json=true)
     $stmt->execute($values);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
-    if($json == true){
-    if ($count > 0){
-        echo json_encode(array("status" => "success", "data" => $data));
+    if ($json == true) {
+        if ($count > 0) {
+            echo json_encode(array("status" => "success", "data" => $data));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
     } else {
-        echo json_encode(array("status" => "failure"));
+        return $count;
     }
-}else{
-    return $count;
-}
-   
 }
 function insertData($table, $data, $json = true)
 {
@@ -72,12 +68,12 @@ function insertData($table, $data, $json = true)
     $stmt->execute();
     $count = $stmt->rowCount();
     if ($json == true) {
-    if ($count > 0) {
-        echo json_encode(array("status" => "success"));
-    } else {
-        echo json_encode(array("status" => "failure"));
+        if ($count > 0) {
+            echo json_encode(array("status" => "success"));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
     }
-  }
     return $count;
 }
 
@@ -98,11 +94,11 @@ function updateData($table, $data, $where, $json = true)
     $stmt->execute($vals);
     $count = $stmt->rowCount();
     if ($json == true) {
-    if ($count > 0) {
-        echo json_encode(array("status" => "success"));
-    } else {
-        echo json_encode(array("status" => "failure"));
-    }
+        if ($count > 0) {
+            echo json_encode(array("status" => "success"));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
     }
     return $count;
 }
@@ -125,27 +121,27 @@ function deleteData($table, $where, $json = true)
 
 function imageUpload($imageRequest)
 {
-  global $msgError;
-  $imagename  = rand(1000, 10000) . $_FILES[$imageRequest]['name'];
-  $imagetmp   = $_FILES[$imageRequest]['tmp_name'];
-  $imagesize  = $_FILES[$imageRequest]['size'];
-  $allowExt   = array("jpg", "png", "gif", "mp3", "pdf");
-  $strToArray = explode(".", $imagename);
-  $ext        = end($strToArray);
-  $ext        = strtolower($ext);
+    global $msgError;
+    $imagename  = rand(1000, 10000) . $_FILES[$imageRequest]['name'];
+    $imagetmp   = $_FILES[$imageRequest]['tmp_name'];
+    $imagesize  = $_FILES[$imageRequest]['size'];
+    $allowExt   = array("jpg", "png", "gif", "mp3", "pdf");
+    $strToArray = explode(".", $imagename);
+    $ext        = end($strToArray);
+    $ext        = strtolower($ext);
 
-  if (!empty($imagename) && !in_array($ext, $allowExt)) {
-    $msgError = "EXT";
-  }
-  if ($imagesize > 2 * MB) {
-    $msgError = "size";
-  }
-  if (empty($msgError)) {
-    move_uploaded_file($imagetmp,  "../upload/" . $imagename);
-    return $imagename;
-  } else {
-    return "fail";
-  }
+    if (!empty($imagename) && !in_array($ext, $allowExt)) {
+        $msgError = "EXT";
+    }
+    if ($imagesize > 2 * MB) {
+        $msgError = "size";
+    }
+    if (empty($msgError)) {
+        move_uploaded_file($imagetmp,  "../upload/" . $imagename);
+        return $imagename;
+    } else {
+        return "fail";
+    }
 }
 
 
@@ -174,27 +170,28 @@ function checkAuthenticate()
 }
 function printFailure($message = 'none')
 {
-    echo    json_encode(array('status'=> 'failure', 'message'=> $message));
+    echo    json_encode(array('status' => 'failure', 'message' => $message));
 }
-function result($count){
-    if($count>0){
+function result($count)
+{
+    if ($count > 0) {
         printSuccess();
-    }else{
+    } else {
         printFailure();
     }
 }
 
 function printSuccess($message = 'none')
 {
-    echo    json_encode(array('status'=> 'success', 'message'=> $message));
+    echo    json_encode(array('status' => 'success', 'message' => $message));
 }
 
 
 
-function sendEmail($to ,$title, $body){
+function sendEmail($to, $title, $body)
+{
     $header = "from: ashhsmith3@gmail.com";
-    mail($to ,$title, $body,$header);
-
+    mail($to, $title, $body, $header);
 }
 
 
@@ -244,13 +241,13 @@ function sendGCM($title, $message, $topic, $pageid, $pagename)
 }
 
 
-function insertNotify($title,$body,$userid,$topic,$pageid,$pagename){
-global $con ;
-$stmt = $con->prepare("INSERT INTO `notification`( `notification_title`, `notification_body`, `notification_userid`) VALUES (?,?,?)");
-$stmt->execute(array($title,$body,$userid));
+function insertNotify($title, $body, $userid, $topic, $pageid, $pagename)
+{
+    global $con;
+    $stmt = $con->prepare("INSERT INTO `notification`( `notification_title`, `notification_body`, `notification_userid`) VALUES (?,?,?)");
+    $stmt->execute(array($title, $body, $userid));
 
-sendGCM($title, $body , $topic , $pageid , $pagename) ;
-$count = $stmt->rowCount();
-return $count;
-
+    sendGCM($title, $body, $topic, $pageid, $pagename);
+    $count = $stmt->rowCount();
+    return $count;
 }

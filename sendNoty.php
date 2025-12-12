@@ -1,4 +1,4 @@
 <?php
 include "connect.php";
 
-sendGCM("hi","whats up","users","","");
+sendGCM("hi", "whats up", "users", "", "");

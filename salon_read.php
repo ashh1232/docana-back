@@ -2,7 +2,4 @@
 
 include "./connect.php";
 
-
-
-
-getAllData("salon","salon_reservation > 0");
+getAllData("salon", "salon_reservation > 0");
