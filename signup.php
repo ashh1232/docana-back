@@ -1,13 +1,9 @@
 <?php
-if (empty($_POST['username'])) {
-    die('name is required');
-}
-print_r($_POST);
 
 include "./connect.php";
 $username = filterRequest("username");
 $email = filterRequest("email");
-$password = sha1("password");
+$password = sha1($_POST["password"]);
 $phone = filterRequest("phone");
 $verify = rand(10000, 99999);
 

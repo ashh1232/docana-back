@@ -11,9 +11,7 @@ $stmt = $con->prepare("SELECT * FROM users WHERE users_email = ? OR users_phone 
 $stmt->execute(array($email, $phone));
 $count = $stmt->rowCount();
 if ($count > 0) {
-    // $error[] = 'هنالك خطأ';
-    // header('location:../admin/sign-up.php');
-    printFailure('asd');
+    printFailure("PHONE OR EMAIL");
 } else {
     $data = array(
         "users_name" => $username,
