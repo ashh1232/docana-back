@@ -251,3 +251,39 @@ function insertNotify($title, $body, $userid, $topic, $pageid, $pagename)
     $count = $stmt->rowCount();
     return $count;
 }
+
+
+
+function getPaginatedData($table, $limit, $offset, $where = null, $values = null, $json = true)
+{
+    global $con;
+    $data = array();
+    if ($where == null) {
+        $stmt = $con->prepare("SELECT  * FROM $table LIMIT ? OFFSET ? ");
+        $stmt->execute(array($limit, $offset));
+    } else {
+        $stmt = $con->prepare("SELECT  * FROM $table WHERE   $where LIMIT ? OFFSET ? ");
+        $values[] = $limit;
+        $values[] = $offset;
+        $stmt->execute($values);
+    }
+
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count  = $stmt->rowCount();
+    if ($json == true) {
+        if ($count > 0) {
+            echo json_encode(array("status" => "success", "data" => $data));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
+        return $count;
+    } else {
+        if ($count > 0) {
+            return array("status" => "success", "data" => $data);
+        } else {
+            return array("status" => "failure");
+        }
+    }
+}
+
+
