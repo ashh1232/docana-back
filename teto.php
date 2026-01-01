@@ -50,6 +50,7 @@ function createOrder($con) {
         $deliveryCity = $_POST['delivery_city'];
         // $deliveryCountry = $_POST['delivery_country'];
         $orderItems = $_POST['order_items'] ?? '';
+        $orderNotes = isset($_POST['order_notes']) ? mysqli_real_escape_string($con, $_POST['order_notes']) : '';
 
         // Start transaction
         $con->beginTransaction();
