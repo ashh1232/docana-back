@@ -8,7 +8,20 @@ if (isset($_FILES['file']) && isset($_POST['product_id'])) {
     $product_id = $_POST['product_id'];
     
     // CHANGED: Path points one level up to the img folder
-    $target_dir = "../../img/"; 
+ $target_dir = "/var/www/html/img/"; 
+
+if (!file_exists($target_dir)) {
+    mkdir($target_dir, 0775, true);
+}
+
+if (!is_writable($target_dir)) {
+    echo json_encode([
+        "status" => "failure",
+        "message" => "المجلد غير قابل للكتابة. يرجى التحقق من الصلاحيات على لينكس."
+    ]);
+    exit;
+}
+//$target_dir = $_SERVER['DOCUMENT_ROOT'] . "/var/www/html/img/";
 
     // OPTIONAL: Auto-create the folder if it doesn't exist
     if (!file_exists($target_dir)) {
