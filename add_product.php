@@ -1,4 +1,8 @@
 <?php
+
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 // إعدادات الاتصال بقاعدة البيانات
 include "connect.php"; // تأكد أن هذا الملف يحتوي على اتصال $con
 
@@ -7,7 +11,9 @@ $name  = filterRequest("name");
 $price = filterRequest("price");
 
 // اسم المجلد الذي ستخزن فيه الصور
-$folder = "../../img"; 
+//$folder = "../../img"; 
+$folder = "/var/www/html/img/"; 
+ //$target_dir = "/var/www/html/img/"; 
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile

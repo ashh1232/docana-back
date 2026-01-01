@@ -1,4 +1,9 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+// rest of your code...
+
 // order.php - Order Management API
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -14,7 +19,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 // Handle different request types
 if ($requestMethod === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
-    
+    // $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
     if ($action === 'create_order') {
         createOrder($con);
     } elseif ($action === 'get_orders') {

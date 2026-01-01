@@ -2,10 +2,11 @@
 
 $dsn = "mysql:host=localhost;dbname=docana";
 // $user = "id22046333_webson";
-$user = "root";
+// $user = "root";
+$user = "ashh";
 // $pass = "Web!son1232";
 // hkjhgh
-$pass = "";
+$pass = "hell1232";
 
 $option = array(
 
