@@ -287,3 +287,146 @@ function getPaginatedData($table, $limit, $offset, $where = null, $values = null
 }
 
 
+
+
+
+function createOrder($con)
+{
+    try {
+        // Get POST data - No need for manual escaping anymore!
+        $userId = $_POST['user_id'];
+        $total = $_POST['total'];
+        $subtotal = $_POST['subtotal'];
+        $shipping = $_POST['shipping'];
+        $deliveryName = $_POST['delivery_name'];
+        $deliveryPhone = $_POST['delivery_phone'];
+        $deliveryAddress = $_POST['delivery_address'];
+        $deliveryCity = $_POST['delivery_city'];
+        // $deliveryCountry = $_POST['delivery_country'];
+        $orderItems = $_POST['order_items'] ?? '';
+        $orderNotes = isset($_POST['order_notes']) ? $_POST['order_notes'] : '';
+
+        // Start transaction
+        $con->beginTransaction();
+
+        // 1. Insert order using Prepared Statements
+        $sql = "INSERT INTO orders (
+            user_id, order_total, order_subtotal, order_shipping,
+            delivery_name, delivery_phone, delivery_address, delivery_city,
+             order_notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $con->prepare($sql);
+        $stmt->execute([
+            $userId,
+            $total,
+            $subtotal,
+            $shipping,
+            $deliveryName,
+            $deliveryPhone,
+            $deliveryAddress,
+            $deliveryCity,
+            $orderNotes
+        ]);
+
+        $orderId = $con->lastInsertId();
+
+        // 2. Insert order items
+        $items = json_decode($orderItems, true);
+        if (is_array($items)) {
+            $itemSql = "INSERT INTO order_items (
+                order_id, product_id, product_name, product_image, product_price, item_quantity, item_total
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $itemStmt = $con->prepare($itemSql);
+
+            foreach ($items as $item) {
+                $itemTotal = $item['product_price'] * $item['quantity'];
+                $itemStmt->execute([
+                    $orderId,
+                    $item['product_id'],
+                    $item['product_name'],
+                    $item['product_image'],
+                    $item['product_price'],
+                    $item['quantity'],
+                    $itemTotal
+                ]);
+            }
+        }
+
+        $con->commit();
+        echo json_encode(['status' => 'success', 'order_id' => $orderId]);
+    } catch (Exception $e) {
+        $con->rollBack();
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+function getUserOrders($con) {
+    try {
+        // 1. استلام القيمة من POST
+        $userId = $_POST['user_id'] ?? null;
+
+        if (!$userId) {
+            echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
+            return;
+        }
+
+        // 2. كتابة الاستعلام باستخدام Placeholders (?) بدلاً من الـ Escape اليدوي
+        $sql = "SELECT 
+            o.order_id, o.order_total, o.order_status, o.created_at,
+            COUNT(oi.item_id) as item_count
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE o.user_id = ?
+        GROUP BY o.order_id
+        ORDER BY o.created_at DESC";
+
+        // 3. تحضير وتنفيذ الاستعلام (PDO Prepared Statements)
+        $stmt = $con->prepare($sql);
+        $stmt->execute([$userId]);
+
+        // 4. جلب النتائج
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['status' => 'success', 'data' => $orders]);
+
+    } catch (PDOException $e) {
+        // في حال حدوث خطأ في قاعدة البيانات
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+function getOrderDetails($con) {
+    try {
+        // 1. التأكد من وجود order_id
+        $orderId = $_POST['order_id'] ?? null;
+        if (!$orderId) {
+            echo json_encode(['status' => 'error', 'message' => 'Order ID is required']);
+            return;
+        }
+
+        // 2. جلب معلومات الطلب الأساسية
+        $orderSql = "SELECT * FROM orders WHERE order_id = ?";
+        $stmt = $con->prepare($orderSql);
+        $stmt->execute([$orderId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($order) {
+            // 3. جلب عناصر الطلب (Items)
+            $itemsSql = "SELECT * FROM order_items WHERE order_id = ?";
+            $itemStmt = $con->prepare($itemsSql);
+            $itemStmt->execute([$orderId]);
+            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // إضافة العناصر إلى مصفوفة الطلب
+            $order['items'] = $items;
+            
+            echo json_encode(['status' => 'success', 'data' => $order]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Order not found']);
+        }
+
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+

@@ -21,7 +21,7 @@ if ($requestMethod === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     // $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
     if ($action === 'create_order') {
-        createOrder($con);
+        createeOrder($con);
     } elseif ($action === 'get_orders') {
         getUserOrders($con);
     } elseif ($action === 'get_order_details') {
@@ -34,7 +34,7 @@ if ($requestMethod === 'POST') {
 }
 
 // Function to create a new order
-function createOrder($con) {
+function createeOrder($con) {
     try {
         // Get POST data
         $userId = mysqli_real_escape_string($con, $_POST['user_id']);

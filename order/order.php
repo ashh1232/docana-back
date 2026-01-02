@@ -1,9 +1,5 @@
 <?php
 
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-// rest of your code...
-
 // order.php - Order Management API
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -11,7 +7,7 @@ header('Access-Control-Allow-Methods: POST, GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Database configuration
-include "connect.php"; // Make sure this file exists with your DB connection
+include "../connect.php"; // Make sure this file exists with your DB connection
 
 // Get the request method
 $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -32,5 +28,3 @@ if ($requestMethod === 'POST') {
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
 }
-
-
