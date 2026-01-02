@@ -37,7 +37,8 @@ if ($requestMethod === 'POST') {
 
 
 
-function createOrder($con) {
+function createOrder($con)
+{
     try {
         // Get POST data - No need for manual escaping anymore!
         $userId = $_POST['user_id'];
@@ -50,7 +51,7 @@ function createOrder($con) {
         $deliveryCity = $_POST['delivery_city'];
         // $deliveryCountry = $_POST['delivery_country'];
         $orderItems = $_POST['order_items'] ?? '';
-        $orderNotes = isset($_POST['order_notes']) ? mysqli_real_escape_string($con, $_POST['order_notes']) : '';
+        $orderNotes = isset($_POST['order_notes']) ? $_POST['order_notes'] : '';
 
         // Start transaction
         $con->beginTransaction();
@@ -61,11 +62,17 @@ function createOrder($con) {
             delivery_name, delivery_phone, delivery_address, delivery_city,
              order_notes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+
         $stmt = $con->prepare($sql);
         $stmt->execute([
-            $userId, $total, $subtotal, $shipping,
-            $deliveryName, $deliveryPhone, $deliveryAddress, $deliveryCity,
+            $userId,
+            $total,
+            $subtotal,
+            $shipping,
+            $deliveryName,
+            $deliveryPhone,
+            $deliveryAddress,
+            $deliveryCity,
             $orderNotes
         ]);
 
@@ -82,16 +89,19 @@ function createOrder($con) {
             foreach ($items as $item) {
                 $itemTotal = $item['product_price'] * $item['quantity'];
                 $itemStmt->execute([
-                    $orderId, $item['product_id'], $item['product_name'], 
-                    $item['product_image'], $item['product_price'], 
-                    $item['quantity'], $itemTotal
+                    $orderId,
+                    $item['product_id'],
+                    $item['product_name'],
+                    $item['product_image'],
+                    $item['product_price'],
+                    $item['quantity'],
+                    $itemTotal
                 ]);
             }
         }
 
         $con->commit();
         echo json_encode(['status' => 'success', 'order_id' => $orderId]);
-
     } catch (Exception $e) {
         $con->rollBack();
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
