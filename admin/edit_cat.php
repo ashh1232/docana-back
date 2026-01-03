@@ -1,5 +1,5 @@
 <?php
-include "./connect.php"; // This file defines $con as a PDO object
+include "../connect.php"; // This file defines $con as a PDO object
 
 header('Content-Type: application/json');
 
