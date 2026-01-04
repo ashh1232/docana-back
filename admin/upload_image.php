@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 include "../connect.php"; // This file defines $con as a PDO object
 
 header('Content-Type: application/json');
@@ -8,7 +10,8 @@ if (isset($_FILES['file']) && isset($_POST['product_id'])) {
     $product_id = $_POST['product_id'];
     
     // CHANGED: Path points one level up to the img folder
- $target_dir = "/var/www/html/img/"; 
+//  $target_dir = "/var/www/html/img/"; 
+$target_dir = realpath(__DIR__ . "/../../../img/productImage/") . "/";
 
 if (!file_exists($target_dir)) {
     mkdir($target_dir, 0775, true);

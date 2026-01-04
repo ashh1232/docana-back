@@ -1,5 +1,8 @@
 <?php
+// هذا هو السطر المطلوب
+require_once __DIR__ . '/../vendor/autoload.php'; 
 
+use kornrunner\Blurhash\Blurhash;
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -11,9 +14,7 @@ $name  = filterRequest("name");
 $price = filterRequest("price");
 
 // اسم المجلد الذي ستخزن فيه الصور
-// $folder = "../../../img"; 
-$folder = "/var/www/html/img/"; 
-//  $target_dir = "/var/www/html/img/"; 
+$folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
@@ -43,21 +44,63 @@ if (isset($_FILES['files'])) {
         if (!file_exists($folder)) {
             mkdir($folder, 0777, true);
         }
+ $destination = $folder . "/" . $newImageName;
 
-        // نقل الصورة للمجلد
-        move_uploaded_file($imageTmp, $folder . "/" . $newImageName);
+    if (move_uploaded_file($imageTmp, $destination)) {
+        
+        // --- [ بداية عملية BlurHash ] ---
+        try {
+            // 1. إنشاء نسخة مصغرة جداً للمعالجة (أداء أسرع)
+            $width = 32; $height = 32;
+            $img = imagecreatefromstring(file_get_contents($destination));
+            $resizedImg = imagecreatetruecolor($width, $height);
+            imagecopyresampled($resizedImg, $img, 0, 0, 0, 0, $width, $height, imagesx($img), imagesy($img));
 
-        // 3. إدخال البيانات في قاعدة البيانات
-        $stmt = $con->prepare("INSERT INTO `products` (`product_name`, `product_price`, `product_image`) VALUES (?, ?, ?)");
-        $stmt->execute(array($name, $price, $newImageName));
+            // 2. استخراج البكسلات
+            $pixels = [];
+            for ($y = 0; $y < $height; $y++) {
+                $row = [];
+                for ($x = 0; $x < $width; $x++) {
+                    $index = imagecolorat($resizedImg, $x, $y);
+                    $colors = imagecolorsforindex($resizedImg, $index);
+                    $row[] = [$colors['red'], $colors['green'], $colors['blue']];
+                }
+                $pixels[] = $row;
+            }
 
-        $count = $stmt->rowCount();
-
-        if ($count > 0) {
-            echo json_encode(array("status" => "success"));
-        } else {
-            echo json_encode(array("status" => "failure", "message" => "Database insert failed"));
+            // 3. توليد الهاش (Components 4x4 هي الأنسب)
+            $blurhash = Blurhash::encode($pixels, 4, 4);
+            imagedestroy($img);
+            imagedestroy($resizedImg);
+        } catch (Exception $e) {
+            $blurhash = ""; // في حال الفشل
         }
+        // --- [ نهاية عملية BlurHash ] ---
+
+        // 3. حفظ البيانات (أضف عمود product_blurhash في قاعدة البيانات)
+        $stmt = $con->prepare("INSERT INTO `products` (`product_name`, `product_price`, `product_image`, `product_blurhash`) VALUES (?, ?, ?, ?)");
+        $stmt->execute(array($name, $price, $newImageName, $blurhash));
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(array("status" => "success", "blurhash" => $blurhash));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
+    }
+        // نقل الصورة للمجلد
+        // move_uploaded_file($imageTmp, $folder . "/" . $newImageName);
+
+        // // 3. إدخال البيانات في قاعدة البيانات
+        // $stmt = $con->prepare("INSERT INTO `products` (`product_name`, `product_price`, `product_image`) VALUES (?, ?, ?)");
+        // $stmt->execute(array($name, $price, $newImageName));
+
+        // $count = $stmt->rowCount();
+
+        // if ($count > 0) {
+        //     echo json_encode(array("status" => "success"));
+        // } else {
+        //     echo json_encode(array("status" => "failure", "message" => "Database insert failed"));
+        // }
     } else {
         echo json_encode(array("status" => "failure", "message" => $error[0]));
     }
