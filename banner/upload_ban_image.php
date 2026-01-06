@@ -3,12 +3,14 @@ include "../connect.php"; // This file defines $con as a PDO object
 
 header('Content-Type: application/json');
 
-if (isset($_FILES['file']) && isset($_POST['product_id'])) {
+if (isset($_FILES['file']) && isset($_POST['banner_id'])) {
     
-    $product_id = $_POST['product_id'];
+    $product_id = $_POST['banner_id'];
     
     // CHANGED: Path points one level up to the img folder
- $target_dir = "/var/www/html/img/"; 
+//  $target_dir = "/var/www/html/img/"; 
+$folder = realpath(__DIR__ . "/../../../img/bannersImages"); // $folder = "/var/www/html/img/"; 
+$target_dir = $folder . "/";
 
 if (!file_exists($target_dir)) {
     mkdir($target_dir, 0775, true);
@@ -35,7 +37,7 @@ if (!is_writable($target_dir)) {
     if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
         try {
             // Using PDO syntax
-            $sql = "UPDATE products SET product_image = ? WHERE product_id = ?";
+            $sql = "UPDATE banners SET banner_image = ? WHERE banner_id = ?";
             $stmt = $con->prepare($sql);
             
             if ($stmt->execute([$filename, $product_id])) {
