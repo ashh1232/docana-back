@@ -15,13 +15,15 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 // Handle different request types
 if ($requestMethod === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
+    $cat=filterRequest('cat_id');
     // $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
     if ($action === 'get_cat') {
         getAllData('categories');
-    } elseif ($action === 'get_orders') {
-        getUserOrders($con);
-    } elseif ($action === 'get_order_details') {
-        getOrderDetails($con);
+    } elseif ($action === 'get_cat_id') {
+        
+        getAllData('productview', "categories_id = $cat");
+    } elseif ($action === 'get_ban_cat') {
+        getAllData('banners', "banner_cat = $cat");
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
