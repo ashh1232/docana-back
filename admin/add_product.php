@@ -14,7 +14,8 @@ $name  = filterRequest("name");
 $price = filterRequest("price");
 
 // اسم المجلد الذي ستخزن فيه الصور
-$folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
+// $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
+ $folder = "/var/www/html/img/productsImages/"; 
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
