@@ -1,5 +1,6 @@
 <?php
 // هذا هو السطر المطلوب
+ob_start(); // ابدأ تخزين المخرجات المؤقت
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use kornrunner\Blurhash\Blurhash;
@@ -8,15 +9,28 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 // إعدادات الاتصال بقاعدة البيانات
 include "../connect.php"; // تأكد أن هذا الملف يحتوي على اتصال $con
-
+header('Content-Type: application/json'); // أخبر فلاتر أن الرد JSON
 // 1. استقبال البيانات النصية
 $name  = filterRequest("name");
 
 // اسم المجلد الذي ستخزن فيه الصور
-$folder = realpath(__DIR__ . "/../../../img/catsImages"); // $folder = "/var/www/html/img/"; 
+// $folder = realpath(__DIR__ . "/../../../img/catsImages"); // $folder = "/var/www/html/img/"; 
+//  $folder = realpath(__DIR__ ."/var/www/html/img/catsImages"); 
+$folder = "/var/www/html/img/catsImages";
+$response = array();
+// سيطبع لك كل ما وصل للسيرفر في Raw Response في Flutter
+print_r($_POST);
+print_r($_FILES);
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
+if (empty($_FILES)) {
+    echo json_encode(array(
+        "status" => "failure",
+        "message" => "No files received. Keys found in POST: " . implode(', ', array_keys($_POST))
+    ));
+    exit();
+}
 if (isset($_FILES['files'])) {
 
     $imageName = $_FILES['files']['name'];
@@ -86,11 +100,28 @@ if (isset($_FILES['files'])) {
             } else {
                 echo json_encode(array("status" => "failure"));
             }
+            ob_end_clean(); // امسح أي تحذيرات (Warnings) ظهرت بالأعلى
+            echo json_encode($response);
+            if (empty($response)) {
+                echo json_encode(array("status" => "failure", "message" => "Reached end of script without output"));
+            }
+            if ($stmt->rowCount() > 0) {
+                $res = array("status" => "success", "blurhash" => $blurhash);
+            } else {
+                $res = array("status" => "failure");
+            }
+
+            ob_clean(); // تمسح أي مخرجات سابقة مثل [] أو التحذيرات
+            echo json_encode($res);
+            exit(); // تضمن عدم طباعة أي شيء آخر بعد الـ JSON
+
         }
-  
     } else {
         echo json_encode(array("status" => "failure", "message" => $error[0]));
     }
 } else {
     echo json_encode(array("status" => "failure", "message" => "No image file received"));
+}
+if (empty($response)) {
+    echo json_encode(array("status" => "failure", "message" => "Reached end of script without output"));
 }

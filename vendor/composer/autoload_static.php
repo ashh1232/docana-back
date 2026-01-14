@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5589f26b495b8823d6bf447c6855012a
+class ComposerStaticInitefa2bd45c0063314e54bfdffd611f4d3
 {
     public static $prefixLengthsPsr4 = array (
         'k' =>
@@ -22,14 +22,19 @@ class ComposerStaticInit5589f26b495b8823d6bf447c6855012a
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'kornrunner\\Blurhash\\AC' => __DIR__ . '/..' . '/kornrunner/blurhash/src/AC.php',
+        'kornrunner\\Blurhash\\Base83' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Base83.php',
+        'kornrunner\\Blurhash\\Blurhash' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Blurhash.php',
+        'kornrunner\\Blurhash\\Color' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Color.php',
+        'kornrunner\\Blurhash\\DC' => __DIR__ . '/..' . '/kornrunner/blurhash/src/DC.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5589f26b495b8823d6bf447c6855012a::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5589f26b495b8823d6bf447c6855012a::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit5589f26b495b8823d6bf447c6855012a::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitefa2bd45c0063314e54bfdffd611f4d3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitefa2bd45c0063314e54bfdffd611f4d3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitefa2bd45c0063314e54bfdffd611f4d3::$classMap;
 
         }, null, ClassLoader::class);
     }

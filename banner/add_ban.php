@@ -1,5 +1,6 @@
 <?php
 // هذا هو السطر المطلوب
+// require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use kornrunner\Blurhash\Blurhash;
@@ -13,7 +14,23 @@ include "../connect.php"; // تأكد أن هذا الملف يحتوي على �
 $name  = filterRequest("name");
 
 // اسم المجلد الذي ستخزن فيه الصور
-$folder = realpath(__DIR__ . "/../../../img/bannersImages"); // $folder = "/var/www/html/img/"; 
+// $folder = realpath(__DIR__ . "/../../../img/bannersImages"); // $folder = "/var/www/html/img/"; 
+$folder = "/var/www/html/img/bannersImages";
+$target_dir = $folder . "/";
+
+// تأكد أولاً من وجود المجلد، وإذا لم يوجد قم بإنشائه
+if (!file_exists($folder)) {
+    mkdir($folder, 0777, true);
+}
+
+// ثم تحقق من قابلية الكتابة
+if (!is_writable($folder)) {
+    echo json_encode([
+        "status" => "failure",
+        "message" => "المجلد غير قابل للكتابة رغم محاولة إنشائه."
+    ]);
+    exit;
+}
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
@@ -87,7 +104,6 @@ if (isset($_FILES['files'])) {
                 echo json_encode(array("status" => "failure"));
             }
         }
-  
     } else {
         echo json_encode(array("status" => "failure", "message" => $error[0]));
     }
