@@ -15,12 +15,19 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+-- ///////////
+CREATE TABLE IF NOT EXISTS main_categories (
+    main_id INT AUTO_INCREMENT PRIMARY KEY,
+    main_name VARCHAR(100) NOT NULL,
+    main_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Create banners table
 CREATE TABLE IF NOT EXISTS banners (
     banner_id INT AUTO_INCREMENT PRIMARY KEY,
     banner_name VARCHAR(100) DEFAULT "banner",
-    banner_image VARCHAR(255),
+    banner_image VARCHAR(255)
 );
 
 -- Create orders table
