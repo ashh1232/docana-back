@@ -89,3 +89,11 @@ CREATE INDEX idx_favorites_user_id ON favorites(user_id);
 -- Sample data for testing (optional)
 -- INSERT INTO users (user_name, user_email, user_password, user_phone) 
 -- VALUES ('Test User', 'test@example.com', '$2y$10$encrypted_password', '1234567890');
+CREATE TABLE IF NOT EXISTS images (
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
+    pro_id INT NOT NULL,
+    product_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (pro_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
