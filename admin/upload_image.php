@@ -13,8 +13,8 @@ if (isset($_FILES['file']) && isset($_POST['product_id'])) {
     // $target_dir = "/var/www/html/img/productsImages";
     // $target_dir = realpath(__DIR__ . "/../../../img/productsImages/") . "/";
     // CHANGED: Path points one level up to the img folder
-    $folder = "/var/www/html/img/productsImages";
-    // $folder = realpath(__DIR__ . "/../../../img/bannersImages"); // $folder = "/var/www/html/img/"; 
+    // $folder = "/var/www/html/img/productsImages";
+    $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
     $target_dir = $folder . "/";
 
     if (!file_exists($target_dir)) {

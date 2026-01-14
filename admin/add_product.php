@@ -4,8 +4,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use kornrunner\Blurhash\Blurhash;
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 // إعدادات الاتصال بقاعدة البيانات
 include "../connect.php"; // تأكد أن هذا الملف يحتوي على اتصال $con
 
@@ -15,7 +15,8 @@ $price = filterRequest("price");
 
 // اسم المجلد الذي ستخزن فيه الصور
 // $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
- $folder = "/var/www/html/img/productsImages/"; 
+//  $folder = "/var/www/html/img/productsImages/"; 
+    $folder = realpath(__DIR__ . "/../../../img/productsImages/"); // $folder = "/var/www/html/img/"; 
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
