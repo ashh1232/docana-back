@@ -301,8 +301,7 @@ function createOrder($con)
         $deliveryName = $_POST['delivery_name'];
         $deliveryPhone = $_POST['delivery_phone'];
         $deliveryAddress = $_POST['delivery_address'];
-        $locationlat = $_POST['lat'];
-        $locationlong = $_POST['long'];
+        $deliveryCity = $_POST['delivery_city'];
         // $deliveryCountry = $_POST['delivery_country'];
         $orderItems = $_POST['order_items'] ?? '';
         $orderNotes = isset($_POST['order_notes']) ? $_POST['order_notes'] : '';
@@ -313,9 +312,9 @@ function createOrder($con)
         // 1. Insert order using Prepared Statements
         $sql = "INSERT INTO orders (
             user_id, order_total, order_subtotal, order_shipping,
-            delivery_name, delivery_phone, delivery_address, location_lat , location_long,
+            delivery_name, delivery_phone, delivery_address, delivery_city,
              order_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? , ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $con->prepare($sql);
         $stmt->execute([
@@ -326,8 +325,7 @@ function createOrder($con)
             $deliveryName,
             $deliveryPhone,
             $deliveryAddress,
-            $locationlat,
-            $locationlong,
+            $deliveryCity,
             $orderNotes
         ]);
 
@@ -363,7 +361,8 @@ function createOrder($con)
     }
 }
 
-function getUserOrders($con) {
+function getUserOrders($con)
+{
     try {
         // 1. استلام القيمة من POST
         $userId = $_POST['user_id'] ?? null;
@@ -391,13 +390,13 @@ function getUserOrders($con) {
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode(['status' => 'success', 'data' => $orders]);
-
     } catch (PDOException $e) {
         // في حال حدوث خطأ في قاعدة البيانات
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
 }
-function getOrderDetails($con) {
+function getOrderDetails($con)
+{
     try {
         // 1. التأكد من وجود order_id
         $orderId = $_POST['order_id'] ?? null;
@@ -418,17 +417,15 @@ function getOrderDetails($con) {
             $itemStmt = $con->prepare($itemsSql);
             $itemStmt->execute([$orderId]);
             $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // إضافة العناصر إلى مصفوفة الطلب
             $order['items'] = $items;
-            
+
             echo json_encode(['status' => 'success', 'data' => $order]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Order not found']);
         }
-
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
 }
-
