@@ -301,7 +301,8 @@ function createOrder($con)
         $deliveryName = $_POST['delivery_name'];
         $deliveryPhone = $_POST['delivery_phone'];
         $deliveryAddress = $_POST['delivery_address'];
-        $deliveryCity = $_POST['delivery_city'];
+        $deliveryLat = $_POST['lat'];
+        $deliveryLong = $_POST['long'];
         // $deliveryCountry = $_POST['delivery_country'];
         $orderItems = $_POST['order_items'] ?? '';
         $orderNotes = isset($_POST['order_notes']) ? $_POST['order_notes'] : '';
@@ -312,9 +313,9 @@ function createOrder($con)
         // 1. Insert order using Prepared Statements
         $sql = "INSERT INTO orders (
             user_id, order_total, order_subtotal, order_shipping,
-            delivery_name, delivery_phone, delivery_address, delivery_city,
+            delivery_name, delivery_phone, delivery_address, delivery_lat, delivery_long,
              order_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $con->prepare($sql);
         $stmt->execute([
@@ -325,7 +326,8 @@ function createOrder($con)
             $deliveryName,
             $deliveryPhone,
             $deliveryAddress,
-            $deliveryCity,
+            $deliveryLat,
+            $deliveryLong,
             $orderNotes
         ]);
 
