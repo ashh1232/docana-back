@@ -2,12 +2,12 @@
 
 $dsn = "mysql:host=localhost;dbname=docana;charset=utf8mb4";
 // $user = "id22046333_webson";
-$user = "root";
-// $user = "ashh";
+// $user = "root";
+$user = "ashh";
 // $pass = "Web!son1232";
 // hkjhgh
-// $pass = "hell1232";
-$pass = "";
+$pass = "hell1232";
+// $pass = "";
 
 $option = array(
    // التعديل الأهم: تحويل لـ utf8mb4 لدعم الإيموجي والأرقام العربية والزخرفة
