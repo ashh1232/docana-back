@@ -18,7 +18,7 @@ if ($requestMethod === 'POST') {
     if ($action === 'get_order_items') {
         $order = filterRequest('order_id');
         getAllData('order_items', "order_id = $order");
-    } elseif ($action === 'process_order') {
+    } elseif ($action === 'get_process_order') {
         getAllData('order', "order_status = 'processing'");
     } elseif ($action === 'process_order') {
         $orderid = filterRequest('order_id');
