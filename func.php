@@ -313,7 +313,7 @@ function createOrder($con)
         // 1. Insert order using Prepared Statements
         $sql = "INSERT INTO orders (
             user_id, order_total, order_subtotal, order_shipping,
-            delivery_name, delivery_phone, delivery_address, delivery_lat, delivery_long,
+            delivery_name, delivery_phone, delivery_address, location_lat, location_long,
              order_notes
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
