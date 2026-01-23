@@ -105,3 +105,23 @@ CREATE TABLE IF NOT EXISTS images (
     
     FOREIGN KEY (pro_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `categories` (
+  `categories_id` int(11) NOT NULL,
+  `categories_name` varchar(100) NOT NULL,
+  `categories_image` varchar(255) NOT NULL
+);
+
+
+
+CREATE TABLE `products` (
+  `product_id` int(11) NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `product_price` float NOT NULL,
+  `product_image` varchar(255) NOT NULL,
+  `product_image2` varchar(200) NOT NULL,
+  `product_image3` varchar(255) NOT NULL,
+  `product_cat` int(11) NOT NULL,
+  `product_discount` int(11) NOT NULL
+);
+

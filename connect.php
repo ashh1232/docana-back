@@ -1,16 +1,22 @@
 <?php
 
-$dsn = "mysql:host=localhost;dbname=docana;charset=utf8mb4";
-// $user = "id22046333_webson";
-// $user = "root";
-$user = "ashh";
-// $pass = "Web!son1232";
-// hkjhgh
-$pass = "hell1232";
-// $pass = "";
+// Load environment variables from .env file
+if (file_exists(__DIR__ . '/.env')) {
+   $env = parse_ini_file(__DIR__ . '/.env');
+   foreach ($env as $key => $value) {
+      putenv("$key=$value");
+   }
+}
+
+// Get database configuration from environment variables
+$dbHost = getenv('DB_HOST') ?: 'localhost';
+$dbName = getenv('DB_NAME') ?: 'docana';
+$dbUser = getenv('DB_USER') ?: 'root';
+$dbPass = getenv('DB_PASS') ?: '';
+
+$dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
 
 $option = array(
-   // التعديل الأهم: تحويل لـ utf8mb4 لدعم الإيموجي والأرقام العربية والزخرفة
    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_general_ci",
    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -21,30 +27,54 @@ $countrowinpage = 9;
 
 try {
 
-   $con = new PDO($dsn, $user, $pass, $option);
+   $con = new PDO($dsn, $dbUser, $dbPass, $option);
 
    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-   header("Access-Control-Allow-Origin: *");
-
-   header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Access-Control-Allow-Origin");
-
-   header("Access-Control-Allow-Methods: POST, OPTIONS , GET");
-
-   include "func.php";
-
-   if (!isset($notAuth)) {
-
-      // checkAuthenticate();
-
+   // Set allowed origins from environment variable
+   $allowedOrigins = explode(',', getenv('ALLOWED_ORIGINS') ?: 'http://localhost');
+   $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+   
+   if (in_array($origin, $allowedOrigins)) {
+      header("Access-Control-Allow-Origin: $origin");
    }
-   /////
-   // } catch (PDOException $e) {
-   //    // في بيئة الإنتاج يفضل تسجيل الخطأ بدلاً من عرضه
-   //    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
-   // }
-   ///
+
+   header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+   header("Access-Control-Allow-Methods: POST, OPTIONS, GET");
+
+   header("Access-Control-Max-Age: 3600");
+
+   header("Content-Type: application/json; charset=UTF-8");
+
+
+   if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+      http_response_code(204); // No content
+      exit;
+   }
+
+   // Include security functions
+   include_once "security.php";
+   
+   // Add security headers
+   addSecurityHeaders();
+   
+   // Validate request data for SQL injection attempts
+   validateRequestData();
+
+   include_once "func.php";
+
+
 } catch (PDOException $e) {
 
-   echo $e->getMessage();
+   $isDevelopment = getenv('APP_ENV') === 'development';
+   
+   if ($isDevelopment) {
+      echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+   } else {
+      echo json_encode(["status" => "error", "message" => "Database connection failed"]);
+      error_log("Database Error: " . $e->getMessage());
+   }
+   exit;
 }
+
