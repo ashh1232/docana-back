@@ -10,8 +10,9 @@ CREATE TABLE IF NOT EXISTS users (
     user_phone VARCHAR(20),
     user_image VARCHAR(255),
     user_address TEXT,
-    user_city VARCHAR(50),
-    user_country VARCHAR(50),
+    location_lat VARCHAR(50) DEFAULT "0.0",
+    location_long VARCHAR(50) DEFAULT "0.0",
+    user_status ENUM('customer', 'delivery', 'dealer') DEFAULT 'customer',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -44,12 +45,12 @@ CREATE TABLE IF NOT EXISTS orders (
     delivery_name VARCHAR(100) NOT NULL,
     delivery_phone VARCHAR(20) NOT NULL,
     delivery_address TEXT NOT NULL,
-    delivery_city VARCHAR(50) NOT NULL,
-    delivery_country VARCHAR(50) NOT NULL,
+    location_lat VARCHAR(50),
+    location_long VARCHAR(50),
     
     -- Payment Information
-    payment_method ENUM('cash', 'card', 'online') DEFAULT 'cash',
-    payment_status ENUM('pending', 'paid', 'failed') DEFAULT 'pending',
+    -- payment_method ENUM('cash', 'card', 'online') DEFAULT 'cash',
+    -- payment_status ENUM('pending', 'paid', 'failed') DEFAULT 'pending',
     
     -- Additional Information
     order_notes TEXT,
