@@ -11,7 +11,7 @@ function validatePasswordStrengthhh($password) {
     }
 
     if (!preg_match('/[0-9]/', $password)) {
-        $errors[] = "Password must contain at least one number";
+        $errors[] = "يجب أن تتضمن كلمة المرور رقماً واحداً على الأقل";
     }
 
     
@@ -47,7 +47,7 @@ try {
     // Validate password strength
     $passwordErrors = validatePasswordStrengthhh($password);
     if (!empty($passwordErrors)) {
-        sendErrorResponse('Weak password', 400, $passwordErrors);
+        sendErrorResponse('كلمه المرور ضعيفه', 400, $passwordErrors);
     }
     
     // Validate phone

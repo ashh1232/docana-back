@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 
 // Database configuration
-include "./connect.php"; // PDO connection from connect.php
+include "../connect.php"; // PDO connection from connect.php
 
 // Get the request method
 $requestMethod = $_SERVER['REQUEST_METHOD'];
