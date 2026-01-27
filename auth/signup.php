@@ -38,8 +38,12 @@ try {
     if (!validateLength($username, 3, 50)) {
         sendErrorResponse('Username must be 3-50 characters', 400);
     }
+
     
     // Validate email
+    
+
+
     // if (!validateEmail($email)) {
     //     sendErrorResponse('Invalid email address', 400);
     // }
