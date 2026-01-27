@@ -3,34 +3,19 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include "../connect.php";
 
-function validatePasswordStrengthhh($password) {
-    $errors = [];
-    
-    if (strlen($password) < 4) {
-        $errors[] = "Password must be at least 8 characters long";
-    }
-
-    if (!preg_match('/[0-9]/', $password)) {
-        $errors[] = "Password must contain at least one number";
-    }
-
-    
-    return $errors;
-}
-
 // Validate request method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendErrorResponse('Invalid request method', 405);
 }
 
 // Validate required fields
-if (empty($_POST['username']) || empty($_POST['password']) || empty($_POST['phone'])) {
+if (empty($_POST['username']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['phone'])) {
     sendErrorResponse('All fields are required', 400);
 }
 
 try {
     $username = sanitizeInput($_POST['username']);
-    // $email = sanitizeInput($_POST['email']);
+    $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
     $phone = sanitizeInput($_POST['phone']);
     
@@ -40,12 +25,12 @@ try {
     }
     
     // Validate email
-    // if (!validateEmail($email)) {
-    //     sendErrorResponse('Invalid email address', 400);
-    // }
+    if (!validateEmail($email)) {
+        sendErrorResponse('Invalid email address', 400);
+    }
     
     // Validate password strength
-    $passwordErrors = validatePasswordStrengthhh($password);
+    $passwordErrors = validatePasswordStrength($password);
     if (!empty($passwordErrors)) {
         sendErrorResponse('Weak password', 400, $passwordErrors);
     }
@@ -57,14 +42,14 @@ try {
     
     // Check if user already exists
     $checkSql = "SELECT user_id FROM users 
-                 WHERE user_phone = ? OR user_name = ?
+                 WHERE user_email = ? OR user_phone = ? OR user_name = ?
                  LIMIT 1";
     
     $checkStmt = $con->prepare($checkSql);
-    $checkStmt->execute([$phone, $username]);
+    $checkStmt->execute([$email, $phone, $username]);
     
     if ($checkStmt->rowCount() > 0) {
-        sendErrorResponse(' phone, or username already exists', 409);
+        sendErrorResponse('Email, phone, or username already exists', 409);
     }
     
     // Hash password using bcrypt
@@ -72,11 +57,11 @@ try {
     
     // Insert new user
     $insertSql = "INSERT INTO users 
-                  (user_name, user_password, user_phone, created_at) 
-                  VALUES (?, ?, ?, NOW())";
+                  (user_name, user_email, user_password, user_phone, created_at) 
+                  VALUES (?, ?, ?, ?, NOW())";
     
     $insertStmt = $con->prepare($insertSql);
-    $insertStmt->execute([$username, $hashedPassword, $phone]);
+    $insertStmt->execute([$username, $email, $hashedPassword, $phone]);
     
     $userId = $con->lastInsertId();
     
@@ -93,7 +78,7 @@ try {
     // Log successful registration
     logSecurityEvent('USER_REGISTERED', [
         'username' => $username,
-        // 'email' => $email,
+        'email' => $email,
         'phone' => $phone
     ]);
     
@@ -102,15 +87,15 @@ try {
         'token' => $token,
         'user_id' => $userId,
         'user_name' => $username,
-        // 'user_email' => $email,
+        'user_email' => $email,
         'user_phone' => $phone
     ], 'Registration successful');
     
 } catch (PDOException $e) {
     // Check for specific database errors
     if (strpos($e->getMessage(), 'Duplicate') !== false) {
-        logSecurityEvent('SIGNUP_DUPLICATE', ['phone' => $phone]);
-        sendErrorResponse('phone already registered', 409);
+        logSecurityEvent('SIGNUP_DUPLICATE', ['email' => $email ?? 'unknown']);
+        sendErrorResponse('Email or phone already registered', 409);
     } else {
         logSecurityEvent('SIGNUP_ERROR', ['error' => $e->getMessage()]);
         sendErrorResponse('An error occurred during registration', 500);

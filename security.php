@@ -247,19 +247,16 @@ function validatePasswordStrength($password) {
  * Detect potential SQL injection attempts
  */
 function detectSQLInjection($input) {
-    $sqlPatterns = [
-        '/union/i',
-        '/select/i',
-        '/insert/i',
-        '/update/i',
-        '/delete/i',
-        '/drop/i',
-        '/create/i',
-        '/alter/i',
+    // Only detect actual SQL injection patterns, not legitimate text
+    $dangerousPatterns = [
+        '/;\s*(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|UNION)/i', // ; followed by SQL keywords
+        '/\'.*?\s+(OR|AND)\s+\'?.*?=.*?\'/i', // SQL injection patterns with OR/AND
+        '/\'\s*OR\s*\'[=1]/i', // Classic OR '1'='1
         '/--|#|\/\*|\*\//i', // SQL comments
+        '/\x00/', // Null bytes
     ];
     
-    foreach ($sqlPatterns as $pattern) {
+    foreach ($dangerousPatterns as $pattern) {
         if (preg_match($pattern, $input)) {
             return true;
         }

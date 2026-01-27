@@ -7,23 +7,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendErrorResponse('Invalid request method', 405);
 }
 
-// Validate input dataa
-if (empty($_POST['phone']) || empty($_POST['password'])) {
-    sendErrorResponse('phone and password are required', 400);
+// Validate input data
+if (empty($_POST['username']) || empty($_POST['password'])) {
+    sendErrorResponse('Username and password are required', 400);
 }
 
 try {
-    $phone = sanitizeInput($_POST['phone']);
+    $username = sanitizeInput($_POST['username']);
     $password = $_POST['password'];
     
-   // Validate phone
-    if (!validatePhone($phone)) {
-        sendErrorResponse('Invalid phone number format', 400);
+    // Validate input length
+    if (!validateLength($username, 3, 50)) {
+        logFailedLogin($username);
+        sendErrorResponse('Invalid username format', 400);
     }
     
-    
     if (!validateLength($password, 1, 255)) {
-        logFailedLogin($phone);
+        logFailedLogin($username);
         sendErrorResponse('Invalid password', 400);
     }
     
@@ -33,11 +33,11 @@ try {
     // Prepare and execute query
     $sql = "SELECT user_id, user_name, user_email, user_phone, user_image, user_password 
             FROM users 
-            WHERE user_name = ? OR user_phone = ?
+            WHERE user_name = ? OR user_email = ?
             LIMIT 1";
     
     $stmt = $con->prepare($sql);
-    $stmt->execute([$phone, $phone]);
+    $stmt->execute([$username, $username]);
     
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,18 +63,18 @@ try {
                 'token' => $token,
                 'user_id' => $user['user_id'],
                 'user_name' => $user['user_name'],
-                // 'user_email' => $user['user_email'],
+                'user_email' => $user['user_email'],
                 'user_phone' => $user['user_phone'],
                 'user_image' => $user['user_image']
             ], 'Login successful');
         } else {
             // Password incorrect
-            logFailedLogin($phone);
+            logFailedLogin($username);
             sendErrorResponse('Invalid credentials', 401);
         }
     } else {
         // User not found
-        logFailedLogin($phone);
+        logFailedLogin($username);
         sendErrorResponse('Invalid credentials', 401);
     }
     
