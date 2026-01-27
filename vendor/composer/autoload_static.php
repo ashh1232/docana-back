@@ -22,11 +22,6 @@ class ComposerStaticInitefa2bd45c0063314e54bfdffd611f4d3
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'kornrunner\\Blurhash\\AC' => __DIR__ . '/..' . '/kornrunner/blurhash/src/AC.php',
-        'kornrunner\\Blurhash\\Base83' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Base83.php',
-        'kornrunner\\Blurhash\\Blurhash' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Blurhash.php',
-        'kornrunner\\Blurhash\\Color' => __DIR__ . '/..' . '/kornrunner/blurhash/src/Color.php',
-        'kornrunner\\Blurhash\\DC' => __DIR__ . '/..' . '/kornrunner/blurhash/src/DC.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

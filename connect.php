@@ -2,9 +2,16 @@
 
 // Load environment variables from .env file
 if (file_exists(__DIR__ . '/.env')) {
-   $env = parse_ini_file(__DIR__ . '/.env');
-   foreach ($env as $key => $value) {
-      putenv("$key=$value");
+   $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+   foreach ($lines as $line) {
+      $line = trim($line);
+      if (empty($line) || strpos($line, '#') === 0) {
+         continue;
+      }
+      if (strpos($line, '=') !== false) {
+         list($key, $value) = explode('=', $line, 2);
+         putenv(trim($key) . '=' . trim($value));
+      }
    }
 }
 
@@ -34,7 +41,7 @@ try {
    // Set allowed origins from environment variable
    $allowedOrigins = explode(',', getenv('ALLOWED_ORIGINS') ?: 'http://localhost');
    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-   
+
    if (in_array($origin, $allowedOrigins)) {
       header("Access-Control-Allow-Origin: $origin");
    }
@@ -55,20 +62,18 @@ try {
 
    // Include security functions
    include_once "security.php";
-   
+
    // Add security headers
    addSecurityHeaders();
-   
+
    // Validate request data for SQL injection attempts
    validateRequestData();
 
    include_once "func.php";
-
-
 } catch (PDOException $e) {
 
    $isDevelopment = getenv('APP_ENV') === 'development';
-   
+
    if ($isDevelopment) {
       echo json_encode(["status" => "error", "message" => $e->getMessage()]);
    } else {
@@ -77,4 +82,3 @@ try {
    }
    exit;
 }
-
