@@ -19,6 +19,10 @@ if ($requestMethod === 'POST') {
         getAllData('orders',"order_status = 'pending'");
     } elseif ($action === 'get_processing_order') {
         getAllData('orders',"order_status = 'processing'");
+        // Admin Users
+    } elseif ($action === 'is_admin') {
+ $usrId = sanitizeInput($_POST['usr_id']); 
+        getAllData('usr',"usr_user = '$usrId'");
     } elseif ($action === 'get_order_items') {
         $order = filterRequest('order_id');
         getAllData('order_items', "order_id = $order");
