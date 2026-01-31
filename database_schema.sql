@@ -12,11 +12,18 @@ CREATE TABLE IF NOT EXISTS users (
     user_address TEXT,
     location_lat VARCHAR(50) DEFAULT "0.0",
     location_long VARCHAR(50) DEFAULT "0.0",
-    user_status ENUM('customer', 'delivery', 'dealer') DEFAULT 'customer',
+    user_role ENUM('client','vendor','driver','admin') DEFAULT 'client',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 -- ///////////
+ALTER TABLE `users` ADD `user_role` ENUM('client', 'vendor', 'driver', 'admin') NOT NULL DEFAULT 'client';
+ALTER TABLE `users` ADD `user_status` TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
+ALTER TABLE `users` ADD `fcm_token` TEXT NULL;
+
+
+-- /////////////
+
 CREATE TABLE IF NOT EXISTS main_categories (
     main_id INT AUTO_INCREMENT PRIMARY KEY,
     main_name VARCHAR(100) NOT NULL,
