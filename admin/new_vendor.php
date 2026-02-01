@@ -23,10 +23,10 @@ if ($requestMethod === 'POST') {
     "user_status" => 2,
 );
         updateData("users", $data, "user_id = $userId");
-    } elseif ($action === 'get_orders') {
-        getUserOrders($con);
+    } elseif ($action === 'get_all_admin_orders') {
+        getAllData("users", "user_status = '2' AND user_role = 'vendor'");
     } elseif ($action === 'get_order_details') {
-        getOrderDetails($con);
+        getAllData("users");
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
