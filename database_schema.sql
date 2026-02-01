@@ -13,16 +13,16 @@ CREATE TABLE IF NOT EXISTS users (
     location_lat VARCHAR(50) DEFAULT "0.0",
     location_long VARCHAR(50) DEFAULT "0.0",
     user_role ENUM('client','vendor','driver','admin') DEFAULT 'client',
+    user_status TINYINT(1) NOT NULL DEFAULT 1;
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 -- ///////////
-ALTER TABLE `users` ADD `user_role` ENUM('client', 'vendor', 'driver', 'admin') NOT NULL DEFAULT 'client';
 ALTER TABLE `users` ADD `user_status` TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
 ALTER TABLE `users` ADD `fcm_token` TEXT NULL;
 
 
--- /////////////
+-- create main_categories table
 
 CREATE TABLE IF NOT EXISTS main_categories (
     main_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,6 +30,20 @@ CREATE TABLE IF NOT EXISTS main_categories (
     main_image VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create categories table
+CREATE TABLE IF NOT EXISTS categories (
+    cat_id INT AUTO_INCREMENT PRIMARY KEY,
+    cat_name VARCHAR(100) NOT NULL,
+    cat_image VARCHAR(255),
+    location_lat VARCHAR(50),
+    location_long VARCHAR(50),
+    main_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (main_id) REFERENCES main_categories(main_id) ON DELETE CASCADE
+);
+
 
 -- Create banners table
 CREATE TABLE IF NOT EXISTS banners (
@@ -113,13 +127,26 @@ CREATE TABLE IF NOT EXISTS images (
     FOREIGN KEY (pro_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS `categories` (
-  `categories_id` int(11) NOT NULL,
-  `categories_name` varchar(100) NOT NULL,
-  `categories_image` varchar(255) NOT NULL
-);
 
 
+-- Create auth_tokens table for managing authentication tokens
+CREATE TABLE IF NOT EXISTS auth_tokens (
+    token_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NULL,
+    last_used_at TIMESTAMP NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_token (token),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Update users table to ensure password_hash column exists (or rename user_password)
+-- ALTER TABLE users MODIFY COLUMN user_password VARCHAR(255) NOT NULL;
+
+-- Add updated_at column if it doesn't exist
+-- ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
