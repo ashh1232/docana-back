@@ -16,10 +16,10 @@ if (file_exists(__DIR__ . '/.env')) {
 }
 
 // Get database configuration from environment variables
-$dbHost = getenv('DB_HOST') ;
-$dbName = getenv('DB_NAME') ;
-$dbUser = getenv('DB_USER') ;
-$dbPass = getenv('DB_PASS') ;
+$dbHost = getenv('DB_HOST');
+$dbName = getenv('DB_NAME');
+$dbUser = getenv('DB_USER');
+$dbPass = getenv('DB_PASS');
 
 $dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
 
