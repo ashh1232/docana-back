@@ -1,6 +1,39 @@
 -- Talabat E-commerce Database Schema
 -- Run this SQL to create the necessary tables for orders and user profiles
 
+-- Create auth_tokens table for managing authentication tokens
+CREATE TABLE IF NOT EXISTS auth_tokens (
+    token_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NULL,
+    last_used_at TIMESTAMP NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_token (token),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Update users table to ensure password_hash column exists (or rename user_password)
+-- ALTER TABLE users MODIFY COLUMN user_password VARCHAR(255) NOT NULL;
+
+-- Add updated_at column if it doesn't exist
+-- ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+-- Create vendor_profiles table
+CREATE TABLE IF NOT EXISTS vendors (
+    vendor_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    store_name VARCHAR(255) NOT NULL UNIQUE,
+    logo VARCHAR(255),
+    location_lat VARCHAR(50) DEFAULT "0.0",
+    location_long VARCHAR(50) DEFAULT "0.0",
+    is_active TINYINT(1) NOT NULL DEFAULT 0, -- 0: Inactive, 1: Active
+    subscriptions_plan ENUM('free','basic','premium') DEFAULT 'free',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 
+
 -- Create users table if it doesn't exist (with profile fields)
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,13 +46,14 @@ CREATE TABLE IF NOT EXISTS users (
     location_lat VARCHAR(50) DEFAULT "0.0",
     location_long VARCHAR(50) DEFAULT "0.0",
     user_role ENUM('client','vendor','driver','admin') DEFAULT 'client',
-    user_status TINYINT(1) NOT NULL DEFAULT 1;
+    user_status TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
+    points INT DEFAULT 0,
+    wallet_balance DECIMAL(10, 2) DEFAULT 0.00, 
+    fcm_token TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 -- ///////////
-ALTER TABLE `users` ADD `user_status` TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
-ALTER TABLE `users` ADD `fcm_token` TEXT NULL;
 
 
 -- create main_categories table
@@ -129,32 +163,11 @@ CREATE TABLE IF NOT EXISTS images (
 
 
 
--- Create auth_tokens table for managing authentication tokens
-CREATE TABLE IF NOT EXISTS auth_tokens (
-    token_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    token VARCHAR(255) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP NULL,
-    last_used_at TIMESTAMP NULL,
-    INDEX idx_user_id (user_id),
-    INDEX idx_token (token),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Update users table to ensure password_hash column exists (or rename user_password)
--- ALTER TABLE users MODIFY COLUMN user_password VARCHAR(255) NOT NULL;
-
--- Add updated_at column if it doesn't exist
--- ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
   `product_name` varchar(100) NOT NULL,
   `product_price` float NOT NULL,
   `product_image` varchar(255) NOT NULL,
-  `product_image2` varchar(200) NOT NULL,
-  `product_image3` varchar(255) NOT NULL,
   `product_cat` int(11) NOT NULL,
   `product_discount` int(11) NOT NULL
 );
