@@ -25,9 +25,13 @@ if ($requestMethod === 'POST') {
         updateData("users", $data, "user_id = $userId");
     } elseif ($action === 'get_all_admin_orders') {
         getAllData("users", "user_status = '2' AND user_role = 'vendor'");
-    } elseif ($action === 'get_order_details') {
-        getAllData("users");
-    } else {
+    } elseif ($action === 'accept_vendor_request') {
+        $userId =  sanitizeInput($_POST['user_id']);
+        $data = array(
+    "user_role" => "vendor",
+    "user_status" => 1,
+);
+        updateData("users", $data, "user_id = $userId");    } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
 } else {

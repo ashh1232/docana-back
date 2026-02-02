@@ -22,7 +22,7 @@ if ($requestMethod === 'POST') {
         // Admin Users
     } elseif ($action === 'is_admin') {
  $usrId = sanitizeInput($_POST['usr_id']); 
-        getAllData('usr',"usr_user = '$usrId'");
+        getAllData('users',"user_id = '$usrId' AND user_role = 'vendor' AND user_status = '1'");
     } elseif ($action === 'get_order_items') {
         $order = filterRequest('order_id');
         getAllData('order_items', "order_id = $order");
