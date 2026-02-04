@@ -3,4 +3,4 @@
 /.env
 vendor/composer/*
 C:\xampp\htdocs\doc\docana-back\.env
-.env
+*.env
