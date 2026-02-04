@@ -28,15 +28,29 @@ if ($requestMethod === 'POST') {
         getAllData("users", "user_status = '2' AND user_role = 'vendor'");
     } elseif ($action === 'accept_vendor_request') {
         $userId =  sanitizeInput($_POST['user_id']);
-        $data = array(
-            "user_role" => "vendor",
-            "user_status" => 1,
-        );
-        updateData("users", $data, "user_id = $userId");
         $vendorData = array(
-            "user_id" => sanitizeInput($_POST['user_id']),
+            "user_id" => $userId,
         );
-        insertData("vendors", $vendorData);
+        $data = array(
+            "user_status" => '1',
+        );
+       // 1. تحديث بيانات المستخدم
+    $update = updateData("users", $data, "user_id = $userId AND user_role = 'vendor' AND user_status = '2'",false);
+
+    if ($update > 0) {
+        // 2. إذا نجح التحديث، قم بإضافة بيانات البائع
+        $insert = insertData("vendors", $vendorData, false);
+        
+        if ($insert > 0) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'User updated but failed to add Vendor']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update user']);
+    }
+
+
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
