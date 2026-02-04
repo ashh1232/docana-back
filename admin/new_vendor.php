@@ -17,21 +17,27 @@ if ($requestMethod === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     // $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
     if ($action === 'add_new_vendor') {
+
         $userId =  sanitizeInput($_POST['user_id']);
         $data = array(
-    "user_role" => "vendor",
-    "user_status" => 2,
-);
+            "user_role" => "vendor",
+            "user_status" => 2,
+        );
         updateData("users", $data, "user_id = $userId");
     } elseif ($action === 'get_all_admin_orders') {
         getAllData("users", "user_status = '2' AND user_role = 'vendor'");
     } elseif ($action === 'accept_vendor_request') {
         $userId =  sanitizeInput($_POST['user_id']);
         $data = array(
-    "user_role" => "vendor",
-    "user_status" => 1,
-);
-        updateData("users", $data, "user_id = $userId");    } else {
+            "user_role" => "vendor",
+            "user_status" => 1,
+        );
+        updateData("users", $data, "user_id = $userId");
+        $vendorData = array(
+            "user_id" => sanitizeInput($_POST['user_id']),
+        );
+        insertData("vendors", $vendorData);
+    } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
 } else {

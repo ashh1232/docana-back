@@ -10,9 +10,9 @@ function validatePasswordStrengthhh($password)
         $errors[] = "Password must be at least 8 characters long";
     }
 
-    if (!preg_match('/[0-9]/', $password)) {
-        $errors[] = "يجب أن تتضمن كلمة المرور رقماً واحداً على الأقل";
-    }
+    // if (!preg_match('/[0-9]/', $password)) {
+    //     $errors[] = "يجب أن تتضمن كلمة المرور رقماً واحداً على الأقل";
+    // }
 
 
     return $errors;

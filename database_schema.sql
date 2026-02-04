@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS banners (
 CREATE TABLE IF NOT EXISTS orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
+    vendor_id INT NOT NULL,
     order_total DECIMAL(10, 2) NOT NULL,
     order_subtotal DECIMAL(10, 2) NOT NULL,
     order_tax DECIMAL(10, 2) NOT NULL,
@@ -114,6 +115,7 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
 );
 
 -- Create order_items table
@@ -163,12 +165,18 @@ CREATE TABLE IF NOT EXISTS images (
 
 
 
-CREATE TABLE `products` (
-  `product_id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    product_image VARCHAR(255) DEFAULT NULL,
+
   `product_name` varchar(100) NOT NULL,
   `product_price` float NOT NULL,
-  `product_image` varchar(255) NOT NULL,
+  `product_blurhash` varchar(255) NOT NULL,
   `product_cat` int(11) NOT NULL,
-  `product_discount` int(11) NOT NULL
+  `product_discount` int(11) DEFAULT 0,
+  `product_description` text DEFAULT NULL,
+  `stock_quantity` int(11) DEFAULT 0,
+
 );
 
