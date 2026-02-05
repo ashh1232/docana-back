@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS mini_orders (
 CREATE TABLE IF NOT EXISTS order_items (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
+    vendor_id INT NOT NULL,
     product_id INT NOT NULL,
     product_name VARCHAR(255) NOT NULL,
     product_image VARCHAR(255),

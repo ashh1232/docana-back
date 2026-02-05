@@ -1,7 +1,8 @@
 <?php
 
 include "../connect.php";
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 function validatePasswordStrengthhh($password)
 {
     $errors = [];
@@ -68,7 +69,7 @@ try {
     $checkStmt->execute([$phone, $username]);
 
     if ($checkStmt->rowCount() > 0) {
-        sendErrorResponse(' phone, or username already exists', 409);
+        sendErrorResponse(' رقم الهاتف أو اسم المستخدم موجود بالفعل', 409);
     }
 
     // Hash password using bcrypt

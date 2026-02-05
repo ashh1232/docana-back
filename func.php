@@ -339,14 +339,15 @@ function createOrder($con)
         $items = json_decode($orderItems, true);
         if (is_array($items)) {
             $itemSql = "INSERT INTO order_items (
-                order_id, product_id, product_name, product_image, product_price, item_quantity, item_total
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                order_id, vendor_id, product_id, product_name, product_image, product_price, item_quantity, item_total
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $itemStmt = $con->prepare($itemSql);
 
             foreach ($items as $item) {
                 $itemTotal = $item['product_price'] * $item['quantity'];
                 $itemStmt->execute([
                     $orderId,
+                    $item['vendor_id'], // مهم جداً لفرز الطلبات لاحقاً لكل تاجر
                     $item['product_id'],
                     $item['product_name'],
                     $item['product_image'],

@@ -21,7 +21,7 @@ if ($requestMethod === 'POST') {
         getAllData('orders',"order_status = 'processing'");
         // Admin Users
     } elseif ($action === 'is_admin') {
- $usrId = sanitizeInput($_POST['usr_id']); 
+ $usrId = filterRequest('usr_id'); 
         getAllData('users',"user_id = '$usrId' AND user_role = 'vendor' AND user_status = '1'");
     } elseif ($action === 'get_order_items') {
         $order = filterRequest('order_id');
@@ -38,9 +38,39 @@ if ($requestMethod === 'POST') {
             "order_status" => "processing",
         );
         updateData("orders", $data, "order_id = $orderid");
+    }  elseif ($action === 'get_pending_order_vendor') {
+       getVendorOrders($con);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+}
+
+function getVendorOrders($con) {
+    $vendorId = $_POST['vendor_id'];
+
+    // استعلام يجلب الطلبات الفريدة التي تحتوي على منتج واحد على الأقل لهذا التاجر
+    $sql = "SELECT DISTINCT o.* 
+            FROM orders o
+            JOIN order_items oi ON o.order_id = oi.order_id
+            WHERE oi.vendor_id = ? 
+            ORDER BY o.created_at DESC";
+
+    $stmt = $con->prepare($sql);
+    $stmt->execute([$vendorId]);
+    $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($orders) {
+        // لكل طلب، سنجلب فقط المنتجات الخاصة بهذا التاجر
+        foreach ($orders as &$order) {
+            $itemSql = "SELECT * FROM order_items WHERE order_id = ? AND vendor_id = ?";
+            $itemStmt = $con->prepare($itemSql);
+            $itemStmt->execute([$order['order_id'], $vendorId]);
+            $order['my_items'] = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        echo json_encode(['status' => 'success', 'data' => $orders]);
+    } else {
+        echo json_encode(['status' => 'success', 'data' => [], 'message' => 'لا توجد طلبات حالياً']);
+    }
 }
