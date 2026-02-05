@@ -295,6 +295,7 @@ function createOrder($con)
     try {
         // Get POST data - No need for manual escaping anymore!
         $userId = $_POST['user_id'];
+        $vendorId = $_POST['vendor_id'];
         $total = $_POST['total'];
         $subtotal = $_POST['subtotal'];
         $shipping = $_POST['shipping'];
@@ -312,14 +313,15 @@ function createOrder($con)
 
         // 1. Insert order using Prepared Statements
         $sql = "INSERT INTO orders (
-            user_id, order_total, order_subtotal, order_shipping,
+            user_id,vendor_id, order_total, order_subtotal, order_shipping,
             delivery_name, delivery_phone, delivery_address, location_lat, location_long,
              order_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $con->prepare($sql);
         $stmt->execute([
             $userId,
+            $vendorId,
             $total,
             $subtotal,
             $shipping,

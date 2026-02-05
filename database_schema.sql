@@ -93,7 +93,6 @@ CREATE TABLE IF NOT EXISTS orders (
     vendor_id INT NOT NULL,
     order_total DECIMAL(10, 2) NOT NULL,
     order_subtotal DECIMAL(10, 2) NOT NULL,
-    order_tax DECIMAL(10, 2) NOT NULL,
     order_shipping DECIMAL(10, 2) DEFAULT 0.00,
     order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
     
@@ -115,6 +114,19 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
+);
+-- miniorder
+-- Create miniorder table
+CREATE TABLE IF NOT EXISTS mini_orders (
+    mini_order_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    vendor_id INT NOT NULL,
+    order_subtotal DECIMAL(10, 2) NOT NULL,
+    order_shipping DECIMAL(10, 2) DEFAULT 0.00,
+    order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
 );
 
