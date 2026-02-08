@@ -1,5 +1,28 @@
 -- Talabat E-commerce Database Schema
 -- Run this SQL to create the necessary tables for orders and user profiles
+-- Create users table if it doesn't exist (with profile fields)
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_name VARCHAR(100) NOT NULL,
+    user_email VARCHAR(100) UNIQUE NOT NULL,
+    user_password VARCHAR(255) NOT NULL,
+    user_phone VARCHAR(20),
+    user_image VARCHAR(255),
+    user_address TEXT,
+    location_lat VARCHAR(50) DEFAULT "0.0",
+    location_long VARCHAR(50) DEFAULT "0.0",
+    user_role ENUM('client','vendor','driver','admin') DEFAULT 'client',
+    user_status TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
+    points INT DEFAULT 0,
+    wallet_balance DECIMAL(10, 2) DEFAULT 0.00, 
+    fcm_token TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+-- ///////////
+
+INSERT INTO `users` (`user_id`, `user_name`, `user_email`, `user_password`, `user_phone`, `user_image`, `user_address`, `location_lat`, `location_long`, `created_at`, `updated_at`) VALUES
+(1, 'ashh', 'ashh@example.com', '$2y$12$M9g38s2Z3z/7OD6OzZWZce9bqgiIGJ3iG69MBzyFWBSorlALbacUS', '0504298891', NULL, NULL, '0.0', '0.0', '2026-01-26 17:40:02', '2026-01-26 17:40:02');
 
 -- Create auth_tokens table for managing authentication tokens
 CREATE TABLE IF NOT EXISTS auth_tokens (
@@ -33,29 +56,10 @@ CREATE TABLE IF NOT EXISTS vendors (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- 
+-- ALTER TABLE vendors ADD COLUMN user_password VARCHAR(255) NOT NULL;
 
--- Create users table if it doesn't exist (with profile fields)
-CREATE TABLE IF NOT EXISTS users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_name VARCHAR(100) NOT NULL,
-    user_email VARCHAR(100) UNIQUE NOT NULL,
-    user_password VARCHAR(255) NOT NULL,
-    user_phone VARCHAR(20),
-    user_image VARCHAR(255),
-    user_address TEXT,
-    location_lat VARCHAR(50) DEFAULT "0.0",
-    location_long VARCHAR(50) DEFAULT "0.0",
-    user_role ENUM('client','vendor','driver','admin') DEFAULT 'client',
-    user_status TINYINT(1) NOT NULL DEFAULT 1; -- 1: نشط, 0: محظور, 2: بانتظار الموافقة
-    points INT DEFAULT 0,
-    wallet_balance DECIMAL(10, 2) DEFAULT 0.00, 
-    fcm_token TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
--- ///////////
-
-
+INSERT INTO `vendors` (`vendor_id`, `user_id`,  `store_name`) VALUES
+(1, 1, 'ashsh');
 -- create main_categories table
 
 CREATE TABLE IF NOT EXISTS main_categories (
@@ -117,18 +121,7 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
 );
 -- miniorder
--- Create miniorder table
-CREATE TABLE IF NOT EXISTS mini_orders (
-    mini_order_id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    vendor_id INT NOT NULL,
-    order_subtotal DECIMAL(10, 2) NOT NULL,
-    order_shipping DECIMAL(10, 2) DEFAULT 0.00,
-    order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
 
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-    FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
-);
 
 -- Create order_items table
 CREATE TABLE IF NOT EXISTS order_items (
@@ -139,6 +132,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     product_name VARCHAR(255) NOT NULL,
     product_image VARCHAR(255),
     product_price DECIMAL(10, 2) NOT NULL,
+    order_status ENUM('pending', 'processing', 'cancelled') DEFAULT 'pending',
+
     item_quantity INT NOT NULL DEFAULT 1,
     item_total DECIMAL(10, 2) NOT NULL,
     

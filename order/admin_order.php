@@ -20,9 +20,32 @@ if ($requestMethod === 'POST') {
     } elseif ($action === 'get_processing_order') {
         getAllData('orders',"order_status = 'processing'");
         // Admin Users
-    } elseif ($action === 'is_admin') {
- $usrId = filterRequest('usr_id'); 
-        getAllData('users',"user_id = '$usrId' AND user_role = 'vendor' AND user_status = '1'");
+   } elseif ($action === 'is_admin') {
+    $usrId = filterRequest('usr_id'); 
+    
+    // جلب بيانات المستخدم للتأكد من رتبته وحالته
+    $userData = getAllData('users', "user_id = '$usrId' AND user_role = 'vendor' AND user_status = '1'", null, false);
+
+
+    if ($userData['status'] == 'success') {
+    //     // جلب بيانات البائع الإضافية من جدول vendors
+        $vendorDetails = getAllData('vendors', "user_id = '$usrId'", null, false);
+    //                 // echo json_encode(array("status" => "success", "data" => $userData));
+
+        echo json_encode([
+            'status' => 'success', 
+            'is_admin' => true,
+            // 'user_data' => $userData, // بيانات الجدول users
+            'vendor_data' => $vendorDetails['data'][0]['vendor_id'] // بيانات الجدول vendors
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'success', 
+            'is_admin' => false,
+            'message' => 'اللمستخدم ليس بائعاً أو غير نشط'
+        ]);
+    }
+
     } elseif ($action === 'get_order_items') {
         $order = filterRequest('order_id');
         getAllData('order_items', "order_id = $order");
@@ -32,6 +55,8 @@ if ($requestMethod === 'POST') {
             "order_status" => "processing",
         );
         updateData("orders", $data, "order_id = $orderid");
+        updateData("order_items", $data, "order_id = $orderid AND vendor_id = 'pending'");
+
     } elseif ($action === 'get_order_details') {
         $orderid = filterRequest('order_id');
         $data = array(
@@ -54,7 +79,7 @@ function getVendorOrders($con) {
     $sql = "SELECT DISTINCT o.* 
             FROM orders o
             JOIN order_items oi ON o.order_id = oi.order_id
-            WHERE oi.vendor_id = ? 
+            WHERE oi.vendor_id = ? AND oi.order_status = 'pending'
             ORDER BY o.created_at DESC";
 
     $stmt = $con->prepare($sql);

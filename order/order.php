@@ -1,10 +1,6 @@
 <?php
 
 // order.php - Order Management API
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET');
-header('Access-Control-Allow-Headers: Content-Type');
 
 // Database configuration
 include "../connect.php"; // Make sure this file exists with your DB connection
