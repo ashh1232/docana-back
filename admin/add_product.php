@@ -3,7 +3,20 @@
 require_once __DIR__ . '/../vendor/autoload.php'; 
 
 use kornrunner\Blurhash\Blurhash;
-
+// Load environment variables from .env file
+if (file_exists(__DIR__ . '/.env.example')) {
+   $lines = file(__DIR__ . '/.env.example', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+   foreach ($lines as $line) {
+      $line = trim($line);
+      if (empty($line) || strpos($line, '#') === 0) {
+         continue;
+      }
+      if (strpos($line, '=') !== false) {
+         list($key, $value) = explode('=', $line, 2);
+         putenv(trim($key) . '=' . trim($value));
+      }
+   }
+}
 // error_reporting(E_ALL);
 // ini_set('display_errors', 1);
 // إعدادات الاتصال بقاعدة البيانات
@@ -12,11 +25,13 @@ include "../connect.php"; // تأكد أن هذا الملف يحتوي على �
 // 1. استقبال البيانات النصية
 $name  = filterRequest("name");
 $price = filterRequest("price");
+$vendor = filterRequest("vendor");
 
 // اسم المجلد الذي ستخزن فيه الصور
 // $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
 //  $folder = "/var/www/html/img/productsImages/"; 
     $folder = realpath(__DIR__ . "/../../../img/productsImages/"); // $folder = "/var/www/html/img/"; 
+    // $folder = realpath(__DIR__ . getenv('PRODUCTS_IMAGES')); // $folder = "/var/www/html/img/"; 
 
 // 2. معالجة رفع الملف (الصورة)
 // ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
@@ -80,8 +95,8 @@ if (isset($_FILES['files'])) {
         // --- [ نهاية عملية BlurHash ] ---
 
         // 3. حفظ البيانات (أضف عمود product_blurhash في قاعدة البيانات)
-        $stmt = $con->prepare("INSERT INTO `products` (`product_name`, `product_price`, `product_image`, `product_blurhash`) VALUES (?, ?, ?, ?)");
-        $stmt->execute(array($name, $price, $newImageName, $blurhash));
+        $stmt = $con->prepare("INSERT INTO `products` (`vendor_id`, `product_name`, `product_price`, `product_image`, `product_blurhash`) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute(array($vendor, $name, $price, $newImageName, $blurhash));
 
         if ($stmt->rowCount() > 0) {
             echo json_encode(array("status" => "success", "blurhash" => $blurhash));
@@ -89,29 +104,11 @@ if (isset($_FILES['files'])) {
             echo json_encode(array("status" => "failure"));
         }
     }
-        // نقل الصورة للمجلد
-        // move_uploaded_file($imageTmp, $folder . "/" . $newImageName);
 
-        // // 3. إدخال البيانات في قاعدة البيانات
-        // $stmt = $con->prepare("INSERT INTO `products` (`product_name`, `product_price`, `product_image`) VALUES (?, ?, ?)");
-        // $stmt->execute(array($name, $price, $newImageName));
-
-        // $count = $stmt->rowCount();
-
-        // if ($count > 0) {
-        //     echo json_encode(array("status" => "success"));
-        // } else {
-        //     echo json_encode(array("status" => "failure", "message" => "Database insert failed"));
-        // }
     } else {
         echo json_encode(array("status" => "failure", "message" => $error[0]));
     }
 } else {
     echo json_encode(array("status" => "failure", "message" => "No image file received"));
 }
-
-// فنكشن بسيطة لتنظيف المدخلات (تأكد من وجودها في ملف connect.php أو أضفها هنا)
-// function filterRequest($requestname) {
-//     return  htmlspecialchars(strip_tags($_POST[$requestname]));
-// }
 ?>
