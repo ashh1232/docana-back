@@ -26,10 +26,12 @@ include "../connect.php"; // تأكد أن هذا الملف يحتوي على �
 $name  = filterRequest("name");
 $price = filterRequest("price");
 $vendor = filterRequest("vendor");
+$catId = filterRequest("catId");
+$note = filterRequest("note");
 
 // اسم المجلد الذي ستخزن فيه الصور
-// $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
-$folder = "/var/www/html/img/productsImages/";
+$folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
+// $folder = "/var/www/html/img/productsImages/";
 // $folder = realpath(__DIR__ . "/../../../img/productsImages/"); // $folder = "/var/www/html/img/"; 
 // $folder = realpath(__DIR__ . getenv('PRODUCTS_IMAGES')); // $folder = "/var/www/html/img/"; 
 
@@ -96,8 +98,8 @@ if (isset($_FILES['files'])) {
             // --- [ نهاية عملية BlurHash ] ---
 
             // 3. حفظ البيانات (أضف عمود product_blurhash في قاعدة البيانات)
-            $stmt = $con->prepare("INSERT INTO `products` (`vendor_id`, `product_name`, `product_price`, `product_image`, `product_blurhash`) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute(array($vendor, $name, $price, $newImageName, $blurhash));
+            $stmt = $con->prepare("INSERT INTO `products` (`vendor_id`, `product_name`, `product_price`, `product_image`, `product_blurhash` ,`product_cat`, `product_desc`) VALUES (?, ?, ?, ?, ? ,? ,?)");
+            $stmt->execute(array($vendor, $name, $price, $newImageName, $blurhash, $catId, $note));
 
             if ($stmt->rowCount() > 0) {
                 echo json_encode(array("status" => "success", "blurhash" => $blurhash));

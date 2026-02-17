@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS products (
   `product_blurhash` varchar(255) NOT NULL,
   `product_cat` int(11) NOT NULL,
   `product_discount` int(11) DEFAULT 0,
-  `product_description` text DEFAULT NULL,
+  `product_desc` text DEFAULT NULL,
   `stock_quantity` int(11) DEFAULT 0,
 
 );
