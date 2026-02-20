@@ -25,12 +25,9 @@ CREATE OR REPLACE VIEW onborderview AS
 SELECT categories.* , onborder.* FROM onborder
 INNER JOIN categories on  categories.categories_id  = onborder.onb_cat
 
-
 CREATE OR REPLACE VIEW onborderview AS
 SELECT categories.* , home_cat.* FROM categories
 INNER JOIN home_cat on  home_cat.ho_ca_id = categories.cat_ho_ca
-
-
 
 CREATE OR REPLACE VIEW catview AS
 SELECT main_categories.* , categories.* FROM categories
