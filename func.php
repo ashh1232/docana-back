@@ -307,7 +307,7 @@ function createOrder($con)
         // $deliveryCountry = $_POST['delivery_country'];
         $orderItems = $_POST['order_items'] ?? '';
         $orderNotes = isset($_POST['order_notes']) ? $_POST['order_notes'] : '';
-
+        $vendors = filterRequest('vendors');
         // Start transaction
         $con->beginTransaction();
 
@@ -315,8 +315,8 @@ function createOrder($con)
         $sql = "INSERT INTO orders (
             user_id,vendor_id, order_total, order_subtotal, order_shipping,
             delivery_name, delivery_phone, delivery_address, location_lat, location_long,
-             order_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+             order_notes, order_vendors
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $con->prepare($sql);
         $stmt->execute([
@@ -330,7 +330,8 @@ function createOrder($con)
             $deliveryAddress,
             $deliveryLat,
             $deliveryLong,
-            $orderNotes
+            $orderNotes,
+            $vendors
         ]);
 
         $orderId = $con->lastInsertId();
