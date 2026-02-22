@@ -18,10 +18,12 @@ if ($requestMethod === 'POST') {
     if ($action === 'get_order_items') {
         $order = filterRequest('order_id');
         getAllData('order_items', "order_id = $order");
+    } elseif ($action === 'get_processing_order') {
+        getAllData('orders', "order_status = 'processing'");
     } elseif ($action === 'process_order') {
-        $orderid = filterRequest('order_id');
+        // $orderid = filterRequest('order_id');
         getAllData('order', "order_status = 'processing'");
-    } elseif ($action === 'process_order') {
+    } elseif ($action === 'process_orderr') {
         $orderid = filterRequest('order_id');
         $data = array(
             "order_status" => "shipped",
