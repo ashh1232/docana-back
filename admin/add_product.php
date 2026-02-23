@@ -1,27 +1,11 @@
 <?php
-// هذا هو السطر المطلوب
 require_once __DIR__ . '/../vendor/autoload.php';
+include "../connect.php"; // Make sure this file exists with your DB connection
 
+use Intervention\Image\ImageManagerStatic as Image; // استدعاء المكتبة
 use kornrunner\Blurhash\Blurhash;
-// Load environment variables from .env file
-if (file_exists(__DIR__ . '/.env.example')) {
-    $lines = file(__DIR__ . '/.env.example', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if (empty($line) || strpos($line, '#') === 0) {
-            continue;
-        }
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-// إعدادات الاتصال بقاعدة البيانات
-include "../connect.php"; // تأكد أن هذا الملف يحتوي على اتصال $con
 
+// ... (بقية الأكواد الخاصة بـ .env والاتصال بقاعدة البيانات) ...
 // 1. استقبال البيانات النصية
 $name  = filterRequest("name");
 $price = filterRequest("price");
@@ -31,85 +15,50 @@ $note = filterRequest("note");
 
 // اسم المجلد الذي ستخزن فيه الصور
 $folder = realpath(__DIR__ . "/../../../img/productsImages"); // $folder = "/var/www/html/img/"; 
-// $folder = "/var/www/html/img/productsImages/";
-// $folder = realpath(__DIR__ . "/../../../img/productsImages/"); // $folder = "/var/www/html/img/"; 
-// $folder = realpath(__DIR__ . getenv('PRODUCTS_IMAGES')); // $folder = "/var/www/html/img/"; 
-
-// 2. معالجة رفع الملف (الصورة)
-// ملاحظة: "files" هو الاسم الذي استخدمناه في Flutter داخل http.MultipartFile
 if (isset($_FILES['files'])) {
-
-    $imageName = $_FILES['files']['name'];
     $imageTmp  = $_FILES['files']['tmp_name'];
-    $imageSize = $_FILES['files']['size'];
+    $imageName = $_FILES['files']['name'];
 
-    // استخراج الامتداد والتأكد من نوع الملف
-    $allowExt  = array("jpg", "png", "gif", "jpeg");
-    $strToArray = explode(".", $imageName);
-    $ext        = end($strToArray);
-    $ext        = strtolower($ext);
+    // اسم فريد للصورة وتحويل الامتداد لـ jpg لتوفير مساحة
+    $newImageName = time() . "_" . uniqid() . ".jpg";
+    $destination  = $folder . "/" . $newImageName;
 
-    if (!empty($imageName) && !in_array($ext, $allowExt)) {
-        $error[] = "الامتداد غير مسموح به";
-    }
+    try {
+        // --- [ 1. معالجة الصورة وتوفير المساحة ] ---
+        $img = Image::make($imageTmp);
 
-    // إذا لم يكن هناك أخطاء، قم برفع الصورة وحفظ البيانات
-    if (empty($error)) {
+        // تصغير العرض لـ 800 بكسل مع الحفاظ على التناسب (Proportions)
+        // ومنع تكبير الصور الصغيرة (upsize)
+        $img->resize(800, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
 
-        // توليد اسم فريد للصورة لتجنب التكرار
-        $newImageName = rand(1000, 10000) . "_" . $imageName;
+        // حفظ الصورة بجودة 70% (ضغط عالي مع جودة ممتازة)
+        $img->save($destination, 70);
 
-        // التأكد من وجود المجلد
-        if (!file_exists($folder)) {
-            mkdir($folder, 0777, true);
-        }
-        $destination = $folder . "/" . $newImageName;
+        // --- [ 2. توليد BlurHash من الصورة المعالجة ] ---
+        // نستخدم نسخة صغيرة جداً للهاش (32 بكسل) لسرعة الأداء
+        $smallImg = clone $img;
+        $smallImg->resize(32, 32);
 
-        if (move_uploaded_file($imageTmp, $destination)) {
-
-            // --- [ بداية عملية BlurHash ] ---
-            try {
-                // 1. إنشاء نسخة مصغرة جداً للمعالجة (أداء أسرع)
-                $width = 32;
-                $height = 32;
-                $img = imagecreatefromstring(file_get_contents($destination));
-                $resizedImg = imagecreatetruecolor($width, $height);
-                imagecopyresampled($resizedImg, $img, 0, 0, 0, 0, $width, $height, imagesx($img), imagesy($img));
-
-                // 2. استخراج البكسلات
-                $pixels = [];
-                for ($y = 0; $y < $height; $y++) {
-                    $row = [];
-                    for ($x = 0; $x < $width; $x++) {
-                        $index = imagecolorat($resizedImg, $x, $y);
-                        $colors = imagecolorsforindex($resizedImg, $index);
-                        $row[] = [$colors['red'], $colors['green'], $colors['blue']];
-                    }
-                    $pixels[] = $row;
-                }
-
-                // 3. توليد الهاش (Components 4x4 هي الأنسب)
-                $blurhash = Blurhash::encode($pixels, 4, 4);
-                imagedestroy($img);
-                imagedestroy($resizedImg);
-            } catch (Exception $e) {
-                $blurhash = ""; // في حال الفشل
+        $pixels = [];
+        for ($y = 0; $y < 32; $y++) {
+            $row = [];
+            for ($x = 0; $x < 32; $x++) {
+                $color = $smallImg->pickColor($x, $y); // استخراج اللون بسهولة
+                $row[] = [$color[0], $color[1], $color[2]];
             }
-            // --- [ نهاية عملية BlurHash ] ---
-
-            // 3. حفظ البيانات (أضف عمود product_blurhash في قاعدة البيانات)
-            $stmt = $con->prepare("INSERT INTO `products` (`vendor_id`, `product_name`, `product_price`, `product_image`, `product_blurhash` ,`product_cat`, `product_desc`) VALUES (?, ?, ?, ?, ? ,? ,?)");
-            $stmt->execute(array($vendor, $name, $price, $newImageName, $blurhash, $catId, $note));
-
-            if ($stmt->rowCount() > 0) {
-                echo json_encode(array("status" => "success", "blurhash" => $blurhash));
-            } else {
-                echo json_encode(array("status" => "failure"));
-            }
+            $pixels[] = $row;
         }
-    } else {
-        echo json_encode(array("status" => "failure", "message" => $error[0]));
+        $blurhash = Blurhash::encode($pixels, 4, 3);
+
+        // --- [ 3. الحفظ في قاعدة البيانات ] ---
+        $stmt = $con->prepare("INSERT INTO `products` (`vendor_id`, `product_name`, `product_price`, `product_image`, `product_blurhash`, `product_cat`, `product_desc`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$vendor, $name, $price, $newImageName, $blurhash, $catId, $note]);
+
+        echo json_encode(["status" => "success", "blurhash" => $blurhash]);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "failure", "message" => $e->getMessage()]);
     }
-} else {
-    echo json_encode(array("status" => "failure", "message" => "No image file received"));
 }
