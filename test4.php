@@ -45,15 +45,20 @@ foreach ($contents as $content) {
                 $cat_id = $innerData['cat_id'] ?? ($innerData['sub_cat_id'] ?? 'unknown');
             }
         }
+        $rawImage = $item['cover']['src'] ?? '';
+        $cleanImage = !empty($rawImage) ? "https:" . str_replace(['https:', 'http:'], '', $rawImage) : null;
 
         $categories[] = [
             'id'    => $cat_id,
             'title' => $item['categoryLanguage'] ?? 'بدون عنوان',
-            'image' => isset($item['cover']['src']) ? "https:" . $item['cover']['src'] : null,
+            'image' => $cleanImage,
             'link'  => "https://ar.shein.com" . ($item['categoryType']['webClickUrl'] ?? '')
         ];
     }
 }
 
 header('Content-Type: application/json; charset=utf-8');
-echo json_encode($categories, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+echo json_encode([
+    "status" => "success",
+    "data" => $categories
+], JSON_UNESCAPED_UNICODE);

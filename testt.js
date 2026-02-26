@@ -1,29 +1,34 @@
-const axios = require('axios');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 
-async function getSheinProducts() {
+async function run() {
+    const browser = await puppeteer.launch({ 
+        headless: false, // سيفتح نافذة متصفح حقيقية الآن
+        args: ['--no-sandbox'] 
+    });
+
+    const page = await browser.newPage();
     const url = "https://ar.shein.com";
+
+    console.log("🚀 سيفتح المتصفح الآن.. قم بحل الكابتشا يدوياً إذا ظهرت!");
     
     try {
-        const response = await axios.get(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Referer': 'https://ar.shein.com',
-                // انسخ الـ Cookie من المتصفح وضعها هنا إذا استمر الـ 403
-                'Cookie': '' 
-            }
-        });
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
-        const products = response.data.info.products || [];
-        console.log(`تم جلب ${products.length} منتج بنجاح!`);
+        // انتظر حتى تحل الكابتشا وتظهر البيانات (JSON) في المتصفح
+        // سيعطيك الكود 30 ثانية لتحل الكابتشا بيدك
+        await page.waitForFunction(() => document.body.innerText.includes('"code":"0"'), { timeout: 60000 });
+
+        const content = await page.evaluate(() => document.body.innerText);
+        const jsonData = JSON.parse(content);
         
-        products.forEach(p => {
-            console.log(`- ${p.goods_name} | السعر: ${p.salePrice.amountWithSymbol}`);
-        });
+        console.log("✅ نجاح! تم تجاوز الحماية يدوياً.");
+        console.log("عدد المنتجات:", jsonData.info.products.length);
 
-    } catch (error) {
-        console.error("حدث خطأ:", error.response ? error.response.status : error.message);
+    } catch (e) {
+        console.log("❌ لم يتم حل الكابتشا في الوقت المطلوب.");
     }
+    // لا تغلق المتصفح فوراً لترى النتيجة
 }
-
-getSheinProducts();
+run();
