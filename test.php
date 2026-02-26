@@ -2,7 +2,29 @@
 <?php
 echo "Hello, World!";
 // 1. الرابط الذي استخرجته من المتصفح
-$url = "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757041&leftCateName=New+In";
+const mainCategory = [
+
+    'New' => "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757041&leftCateName=New+In",
+
+    "Women+Clothing" =>
+    "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=common:346016:shein:ar_ar:ios&leftCateName=Women+Clothing",
+
+
+    'Curve' =>
+    "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757053&leftCateName=Curve",
+
+
+    "تخفيض+الأسعار" =>
+    "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757048&leftCateName=%D8%AA%D8%AE%D9%81%D9%8A%D8%B6+%D8%A7%D9%84%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1",
+
+
+    'Kids' => "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=common:350613:shein:ar_ar:ios&leftCateName=Kids",
+
+
+    'Men' => "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=common:350668:shein:ar_ar:ios&leftCateName=Men+Clothing",
+
+];
+$url = mainCategory['Kids']; // اختر الرابط الذي تريد اختباره
 
 // 2. إعداد الطلب (Headers مهمة جداً ليوهم الموقع أنك متصفح)
 $options = [
@@ -39,7 +61,9 @@ if (isset($data['info']['contents'])) {
                 $results[] = [
                     'category' => $main_name,
                     'name'     => $item['categoryLanguage'],
-                    'link'     => "https://ar.shein.com" . ($item['categoryType']['webClickUrl'] ?? '')
+                    'link'     => "https://ar.shein.com" . ($item['categoryType']['webClickUrl'] ?? ''),
+                    'cat_id'     => $item['categoryType']['hrefTarget'] ?? '',
+
                 ];
             }
         }
