@@ -2,6 +2,7 @@
 <?php
 echo "Hello, World!";
 // 1. الرابط الذي استخرجته من المتصفح
+const urll = "https://m.shein.com/bff-api/ccc/home_page?_ver=1.1.8&_lang=en&channel_id=25&country_id=165&position=2&tab_id=1&tab_name=women";
 const mainCategory = [
 
     'New' => "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757041&leftCateName=New+In",

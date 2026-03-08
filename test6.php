@@ -1,3 +1,3 @@
 <?php
-include './shemo_connect.php';
-getAllData('products');
+include_once "../connect.php";
+getAllData('catoview');

@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
 );
 -- miniorder
@@ -191,3 +191,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 );
 
+-- //////////////
+-- shemo
+CREATE INDEX idx_pro_cat_id ON products(cat_id);
+CREATE INDEX idx_cat_pro_id ON categories(cat_id);

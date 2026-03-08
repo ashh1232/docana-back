@@ -29,30 +29,19 @@ $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
 if ($page === null || $page === false || $page < 1) {
     $page = 1;
 }
-$limit = 10;
+$limit = 20;
 $offset = ($page - 1) * $limit;
 $totalRecords = 1000;
 $totalPages = ceil($totalRecords / $limit);
-$url = "https://m.shein.com/bff-api/product/get_products_by_keywords?_ver=1.1.8&_lang=en&cate_type=4&keywords=asdf&channelId=1&source=search&page=2&limit=10&filter_goods_infos=337038016-z24120248133,375945080-z23111565982,101251636-z23080966977,67395906-z24041376866,81663453-z24041640054,209279217-z250415428740,376459233-w21120132375,240508001-z250915260053,306635270-z250407497490,365144086-z250917348372&postClickRefresh=0&exposedPosition=10&usePage=1&context_info=%7B%22src_module%22:%22search%22,%22src_tab_page_id%22:%22%22%7D&exposeGoodsSize=10&force_suggest=0&src_tab_page_id=page_pre_search1772244199965&poskey=SearchPageSort&scene=all&search_source=1&data_c=%7B%２ai%２:%7B%２search_cycle%２:%7B%２rt_f_search_cycle_id%２:%۲" . "rt_f_search_cycle_id" . "%۲,%۲rt_f_search_cycle_keywords%۲:%۲" . "asdf,asdf" . "%۲,%۲rt_f_search_cycle_keywords_ts%۲:%۲" . "timestamp" . "%۲,%۲rt_f_search_cycle_keyword_entry_from%۲:%۲" . "page_search" . "%۲,%۲rt_f_search_cycle_click%۲:%۲" . "" . "%۲,%۲rt_f_search_cycle_click_ts%۲:%۲" . "" . "%۲,%۳rt_f_search_cycle_click_pn%۳:%۳" . "" . "%۳,%۳rt_f_search_cycle_cart%۳:%۳" . "" . "%۳,%۳rt_f_search_cycle_cart_ts%۳:%۳" . "" . "%۳,%۳rt_f_search_cycle_cart_pn%۳:%ۥ" . "" . "%ۥ,%ۥrt_f_search_cycle_fav%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d%s%d&s%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f"; // اختر الرابط الذي تريد اختباره
-// 二. إعداد الطلب (Headers مهمة جداً ليوهم الموقع أنك متصفح)
+$url = trim("https://m.shein.com/bff-api/ccc/home_page?_ver=1.1.8&_lang=ar&channel_id=$page&country_id=165&position=2&tab_id=1&tab_name=men"); // اختر الرابط الذي تريد اختباره
+
+// 2. إعداد الطلب (Headers مهمة جداً ليوهم الموقع أنك متصفح)
 $options = [
     "http" => [
         "method" => "GET",
         "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36\r\n" .
             "Accept: application/json\r\n" .
-            "Referer: https://ar.shein.com\r\n",
-
-        ':authority' => 'm.shein.com',
-        ':method' => 'POST',
-        ':path' => '/bff-api/product/get_products_by_keywords?_ver=1.1.8&_lang=en&cate_type=4&keywords=asdf&channelId=1&source=search&page=2&limit=10&filter_goods_infos=337038016-z24120248133,375945080-z23111565982,101251636-z23080966977,67395906-z24041376866,81663453-z24041640054,209279217-z250415428740,376459233-w21120132375,240508001-z250915260053,306635270-z250407497490,365144086-z250917348372&postClickRefresh=0&exposedPosition=10&usePage=1&context_info=%7B%22src_module%22:%22search%22,%22src_tab_page_id%22:%22%22%7D&exposeGoodsSize=10&force_suggest=0&src_tab_page_id=page_pre_search1772244199965&poskey=SearchPageSort&scene=all&search_source=1&data_c=%7B%22ai%22:%7B%22search_cycle%22:%7B%22rt_f_search_cycle_id%22:%221772242589745%22,%22rt_f_search_cycle_keywords
-%22:%22asdf,asdf,Girls+Clothes%22,%22rt_f_search_cycle_keywords_ts%22:%221772244202183,1772244185940,1772244172398%22,%22rt_f_search_cycle_keyword_entry_from%22:%22page_search,page_search,page_goods_detail%22,%22rt_f_search_cycle_click%22:%22%22,%22rt_f_search_cycle_click_ts%22:%22%22,%22rt_f_search_cycle_click_pn%22:%22%22,%22rt_f_search_cycle_cart%22:%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3D%3D,%3B&timestamp=1775555555555&sign=0cbd9e4b9c3a1e6c8b6fbbacfa1c9e',
-        ':scheme' => 'https',
-        'accept' => 'application/json',
-        'accept-language' => 'en-US,en;q=0.9',
-        'content-type' => 'application/json',
-        'cookie' => 'x5sec=4b1c8e7c-9a3d-4f1e-8c2b-9f1e8c2b9f1e; _gcl_au=1.1.1234567890.1772242589; _ga=GA1.2.1234567890.1772242589; _gid=GA1.2.1234567890.1772242589; _fbp=fb.1.1772242589.1234567890; _ga_12345678=GS1.2.1772242589.1.0.1772242589.0; shein_arabic_currency=USD; shein_arabic_country=SA; shein_arabic_language=ar; shein_arabic_region=SA; shein_arabic_user_city=%D8%B1%D9%8A%D8%A7%D8%B6; shein_arabic_user_province=%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6; shein_arabic_user_zip_code=11461; shein_arabic_utm_source=(direct); shein_arabic_utm_medium=(none); shein_arabic_utm_campaign=(none); shein_arabic_utm_content=(none); shein_arabic_utm_term=(none); shein_arabic_session_id=abcdef1234567890abcdef1234567890; shein_arabic_session_id_sig=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
-
-
+            "Referer: https://ar.shein.com\r\n"
     ]
 ];
 
@@ -66,13 +55,44 @@ if ($response === FALSE) {
 // $json_data = "https://ar.shein.com/bff-api/ccc/nav/right?_ver=1.1.8&_lang=ar&channelType=10&id=757041&leftCateName=New+In";
 // افترضنا أن $json_data هو المتغير الذي يحتوي على النص الذي أرسلته
 $data = json_decode($response, true);
-echo "<pre>";
-print_r($data);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    die("خطأ في تحليل JSON: " . json_last_error_msg());
+}
 
+
+$category = [];
 $results = [];
 header('Content-Type: application/json; charset=utf-8');
-
+$contents = $data['info']['content'] ?? [];
 if (isset($data['info']['content'])) {
+    $category[] = ['as' => $contents];
+    foreach ($contents as $content) {
+        // الوصول للمصفوفة المتداخلة items
+        $items = $content['child'][0]['props']['items'] ?? ($content['props']['items'] ?? []);
+
+        foreach ($items as $item) {
+            $clickUrl = $item['categoryType']['clickUrl'] ?? '';
+            $cat_id = 'unknown';
+
+            if (!empty($clickUrl)) {
+                $queryString = parse_url($clickUrl, PHP_URL_QUERY);
+                parse_str($queryString, $queryParams);
+                if (isset($queryParams['data'])) {
+                    $innerData = json_decode($queryParams['data'], true);
+                    $cat_id = $innerData['cat_id'] ?? ($innerData['sub_cat_id'] ?? 'unknown');
+                }
+            }
+            $rawImage = $item['cover']['src'] ?? '';
+            $cleanImage = !empty($rawImage) ? "https:" . str_replace(['https:', 'http:'], '', $rawImage) : null;
+
+            // $category[] = [
+            //     'id'    => $cat_id,
+            //     'title' => $item['categoryLanguage'] ?? 'بدون عنوان',
+            //     'image' => $cleanImage,
+            //     'link'  => "https://ar.shein.com" . ($item['categoryType']['webClickUrl'] ?? '')
+            // ];
+        }
+    }
     // echo "Hello, World!";
     foreach ($data['info']['content'] as $content) {
         if (isset($content['content'])) {
@@ -160,6 +180,7 @@ header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     "status" => "success",
     "data" => $results,
+    // "category" => $category,
     "metadata" => [
         "current_page" => $page,
         "per_page" => $limit,
