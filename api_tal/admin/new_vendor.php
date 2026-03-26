@@ -34,23 +34,21 @@ if ($requestMethod === 'POST') {
         $data = array(
             "user_status" => '1',
         );
-       // 1. تحديث بيانات المستخدم
-    $update = updateData("users", $data, "user_id = $userId AND user_role = 'vendor' AND user_status = '2'",false);
+        // 1. تحديث بيانات المستخدم
+        $update = updateData("users", $data, "user_id = $userId AND user_role = 'vendor' AND user_status = '2'", false);
 
-    if ($update > 0) {
-        // 2. إذا نجح التحديث، قم بإضافة بيانات البائع
-        $insert = insertData("vendors", $vendorData, false);
-        
-        if ($insert > 0) {
-            echo json_encode(['status' => 'success']);
+        if ($update > 0) {
+            // 2. إذا نجح التحديث، قم بإضافة بيانات البائع
+            $insert = insertData("vendors", $vendorData, false);
+
+            if ($insert > 0) {
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'User updated but failed to add Vendor']);
+            }
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'User updated but failed to add Vendor']);
+            echo json_encode(['status' => 'error', 'message' => 'Failed to update user']);
         }
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to update user']);
-    }
-
-
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
