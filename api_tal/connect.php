@@ -1,4 +1,11 @@
 <?php
+// التحقق مما إذا كان الطلب قادماً من متصفح (ليس طلب API)
+if (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') !== false) {
+   http_response_code(404);
+   // يمكنك تخصيص صفحة 404 هنا أو تركها فارغة
+   include('404.php'); // إذا كان لديك صفحة 404 جاهزة
+   exit;
+}
 
 // Load environment variables from .env file
 if (file_exists(__DIR__ . '/../../../../.env')) {
@@ -55,7 +62,7 @@ try {
    header("Content-Type: application/json; charset=UTF-8");
 
    header('Content-Type: application/json');
-   header('Access-Control-Allow-Origin: *');
+   // header('Access-Control-Allow-Origin: *');
    header('Access-Control-Allow-Headers: Content-Type');
 
    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
