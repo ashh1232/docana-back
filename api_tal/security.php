@@ -11,7 +11,8 @@
 /**
  * Sanitize user input to prevent XSS attacks
  */
-function sanitizeInput($input) {
+function sanitizeInput($input)
+{
     if (is_array($input)) {
         return array_map('sanitizeInput', $input);
     }
@@ -21,14 +22,16 @@ function sanitizeInput($input) {
 /**
  * Validate email format
  */
-function validateEmail($email) {
+function validateEmail($email)
+{
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
 /**
  * Validate input length
  */
-function validateLength($input, $minLength = 1, $maxLength = 255) {
+function validateLength($input, $minLength = 1, $maxLength = 255)
+{
     $length = strlen($input);
     return $length >= $minLength && $length <= $maxLength;
 }
@@ -36,14 +39,16 @@ function validateLength($input, $minLength = 1, $maxLength = 255) {
 /**
  * Validate phone number format
  */
-function validatePhone($phone) {
+function validatePhone($phone)
+{
     return preg_match('/^[0-9\+\-\s\(\)]{7,20}$/', $phone);
 }
 
 /**
  * Validate numeric input
  */
-function validateNumeric($value, $min = null, $max = null) {
+function validateNumeric($value, $min = null, $max = null)
+{
     if (!is_numeric($value)) {
         return false;
     }
@@ -63,19 +68,20 @@ function validateNumeric($value, $min = null, $max = null) {
 /**
  * Check and enforce rate limiting
  */
-function checkRateLimit($identifier, $maxAttempts = 5, $windowSeconds = 300) {
+function checkRateLimit($identifier, $maxAttempts = 5, $windowSeconds = 300)
+{
     $cacheFile = sys_get_temp_dir() . '/ratelimit_' . md5($identifier) . '.json';
-    
+
     $attempts = [];
     if (file_exists($cacheFile)) {
         $attempts = json_decode(file_get_contents($cacheFile), true) ?? [];
     }
-    
+
     $now = time();
-    $attempts = array_filter($attempts, function($timestamp) use ($now, $windowSeconds) {
+    $attempts = array_filter($attempts, function ($timestamp) use ($now, $windowSeconds) {
         return $timestamp > ($now - $windowSeconds);
     });
-    
+
     if (count($attempts) >= $maxAttempts) {
         http_response_code(429); // Too Many Requests
         echo json_encode([
@@ -84,7 +90,7 @@ function checkRateLimit($identifier, $maxAttempts = 5, $windowSeconds = 300) {
         ]);
         exit;
     }
-    
+
     $attempts[] = $now;
     file_put_contents($cacheFile, json_encode($attempts));
 }
@@ -92,7 +98,8 @@ function checkRateLimit($identifier, $maxAttempts = 5, $windowSeconds = 300) {
 /**
  * Get client IP address
  */
-function getClientIP() {
+function getClientIP()
+{
     $ip = '';
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
@@ -111,14 +118,15 @@ function getClientIP() {
 /**
  * Log security events
  */
-function logSecurityEvent($eventType, $details = []) {
+function logSecurityEvent($eventType, $details = [])
+{
     $logFile = __DIR__ . '/logs/security.log';
-    
+
     // Create logs directory if it doesn't exist
     if (!is_dir(__DIR__ . '/logs')) {
         mkdir(__DIR__ . '/logs', 0755, true);
     }
-    
+
     $logEntry = [
         'timestamp' => date('Y-m-d H:i:s'),
         'event_type' => $eventType,
@@ -128,11 +136,11 @@ function logSecurityEvent($eventType, $details = []) {
         'request_path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? 'UNKNOWN',
         'details' => $details
     ];
-    
+
     $isDevelopment = getenv('APP_ENV') === 'development';
-    
+
     file_put_contents($logFile, json_encode($logEntry) . "\n", FILE_APPEND);
-    
+
     if (!$isDevelopment) {
         // Alert administrators on critical events
         if (in_array($eventType, ['SUSPICIOUS_ACTIVITY', 'INJECTION_ATTEMPT', 'BRUTE_FORCE'])) {
@@ -145,7 +153,8 @@ function logSecurityEvent($eventType, $details = []) {
 /**
  * Log failed login attempt
  */
-function logFailedLogin($username) {
+function logFailedLogin($username)
+{
     logSecurityEvent('FAILED_LOGIN', [
         'username' => sanitizeInput($username)
     ]);
@@ -155,7 +164,8 @@ function logFailedLogin($username) {
 /**
  * Log successful login
  */
-function logSuccessfulLogin($userId, $username) {
+function logSuccessfulLogin($userId, $username)
+{
     logSecurityEvent('SUCCESSFUL_LOGIN', [
         'user_id' => $userId,
         'username' => sanitizeInput($username)
@@ -165,7 +175,8 @@ function logSuccessfulLogin($userId, $username) {
 /**
  * Log suspicious activity
  */
-function logSuspiciousActivity($activity, $details = []) {
+function logSuspiciousActivity($activity, $details = [])
+{
     logSecurityEvent('SUSPICIOUS_ACTIVITY', array_merge([
         'activity' => $activity
     ], $details));
@@ -178,7 +189,8 @@ function logSuspiciousActivity($activity, $details = []) {
 /**
  * Generate CSRF token
  */
-function generateCSRFToken() {
+function generateCSRFToken()
+{
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
@@ -188,7 +200,8 @@ function generateCSRFToken() {
 /**
  * Verify CSRF token
  */
-function verifyCSRFToken($token) {
+function verifyCSRFToken($token)
+{
     if (empty($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
         logSuspiciousActivity('CSRF_ATTEMPT', ['provided_token' => substr($token, 0, 10) . '...']);
         return false;
@@ -203,23 +216,26 @@ function verifyCSRFToken($token) {
 /**
  * Hash password securely
  */
-function hashPassword($password) {
+function hashPassword($password)
+{
     return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 }
 
 /**
  * Verify password
  */
-function verifyPassword($password, $hash) {
+function verifyPassword($password, $hash)
+{
     return password_verify($password, $hash);
 }
 
 /**
  * Validate password strength
  */
-function validatePasswordStrength($password) {
+function validatePasswordStrength($password)
+{
     $errors = [];
-    
+
     if (strlen($password) < 8) {
         $errors[] = "Password must be at least 8 characters long";
     }
@@ -235,7 +251,7 @@ function validatePasswordStrength($password) {
     if (!preg_match('/[!@#$%^&*]/', $password)) {
         $errors[] = "Password must contain at least one special character (!@#$%^&*)";
     }
-    
+
     return $errors;
 }
 
@@ -246,7 +262,8 @@ function validatePasswordStrength($password) {
 /**
  * Detect potential SQL injection attempts
  */
-function detectSQLInjection($input) {
+function detectSQLInjection($input)
+{
     // Only detect actual SQL injection patterns, not legitimate text
     $dangerousPatterns = [
         '/;\s*(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|UNION)/i', // ; followed by SQL keywords
@@ -255,30 +272,31 @@ function detectSQLInjection($input) {
         '/--|#|\/\*|\*\//i', // SQL comments
         '/\x00/', // Null bytes
     ];
-    
+
     foreach ($dangerousPatterns as $pattern) {
         if (preg_match($pattern, $input)) {
             return true;
         }
     }
-    
+
     return false;
 }
 
 /**
  * Validate and sanitize all GET/POST parameters
  */
-function validateRequestData() {
+function validateRequestData()
+{
     $dangerous_inputs = [];
-    
+
     $data = array_merge($_GET, $_POST);
-    
+
     foreach ($data as $key => $value) {
         if (is_string($value) && detectSQLInjection($value)) {
             $dangerous_inputs[$key] = substr($value, 0, 50) . '...';
         }
     }
-    
+
     if (!empty($dangerous_inputs)) {
         logSuspiciousActivity('INJECTION_ATTEMPT', $dangerous_inputs);
         http_response_code(400);
@@ -297,7 +315,8 @@ function validateRequestData() {
 /**
  * Validate API key
  */
-function validateAPIKey($key) {
+function validateAPIKey($key)
+{
     $validKeys = explode(',', getenv('API_KEYS') ?: '');
     return in_array(trim($key), $validKeys);
 }
@@ -305,7 +324,8 @@ function validateAPIKey($key) {
 /**
  * Get API key from request header
  */
-function getAPIKey() {
+function getAPIKey()
+{
     $headers = getallheaders();
     return $headers['Authorization'] ?? $headers['X-API-Key'] ?? null;
 }
@@ -317,7 +337,8 @@ function getAPIKey() {
 /**
  * Initialize secure session
  */
-function initSecureSession() {
+function initSecureSession()
+{
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_set_cookie_params([
             'lifetime' => 3600,
@@ -334,14 +355,16 @@ function initSecureSession() {
 /**
  * Regenerate session ID after login
  */
-function regenerateSessionID() {
+function regenerateSessionID()
+{
     session_regenerate_id(true);
 }
 
 /**
  * Destroy session securely
  */
-function destroySecureSession() {
+function destroySecureSession()
+{
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
@@ -357,7 +380,8 @@ function destroySecureSession() {
 /**
  * Escape output to prevent XSS
  */
-function escapeOutput($data) {
+function escapeOutput($data)
+{
     if (is_array($data)) {
         return array_map('escapeOutput', $data);
     }
@@ -367,7 +391,8 @@ function escapeOutput($data) {
 /**
  * Add security headers
  */
-function addSecurityHeaders() {
+function addSecurityHeaders()
+{
     header("X-Content-Type-Options: nosniff");
     header("X-Frame-Options: DENY");
     header("X-XSS-Protection: 1; mode=block");
@@ -383,7 +408,8 @@ function addSecurityHeaders() {
 /**
  * Send error response
  */
-function sendErrorResponse($message, $code = 400, $details = []) {
+function sendErrorResponse($message, $code = 400, $details = [])
+{
     http_response_code($code);
     echo json_encode([
         "status" => "error",
@@ -396,12 +422,15 @@ function sendErrorResponse($message, $code = 400, $details = []) {
 /**
  * Send success response
  */
-function sendSuccessResponse($data = [], $message = "Success") {
+function sendSuccessResponse($token, $data = [], $message = "Success")
+{
     http_response_code(200);
     echo json_encode([
         "status" => "success",
         "message" => $message,
-        "data" => $data
+        "data" => $data,
+        "token" => $token  // Optional: include a token for CSRF protection
+
     ]);
     exit;
 }

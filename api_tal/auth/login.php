@@ -59,7 +59,7 @@ try {
             $tokenStmt->execute([$user['user_id'], $token, $token]);
 
             // Return successful response with user data
-            sendSuccessResponse([
+            sendSuccessResponse($token, [
                 'token' => $token,
                 'user_id' => $user['user_id'],
                 'user_name' => $user['user_name'],
