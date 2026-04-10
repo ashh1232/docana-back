@@ -4,7 +4,6 @@ if (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') !== false) {
    http_response_code(404);
    // يمكنك تخصيص صفحة 404 هنا أو تركها فارغة
    include('404.php'); // إذا كان لديك صفحة 404 جاهزة
-
    exit;
 }
 
@@ -17,8 +16,6 @@ if (file_exists(__DIR__ . '/../../../../.env')) {
          continue;
       }
       if (strpos($line, '=') !== false) {
-
-
          list($key, $value) = explode('=', $line, 2);
          putenv(trim($key) . '=' . trim($value));
       }
